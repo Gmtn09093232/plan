@@ -12,7 +12,9 @@ const PORT = process.env.PORT || 5000;
 // ─── Middleware ──────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname,)));
+
+// ✅ Serve static files from the root directory (where server.js and index.html are)
+app.use(express.static(__dirname));
 
 // ─── Supabase Client ──────────────────────────────────────────
 const supabase = createClient(
@@ -620,6 +622,7 @@ app.post('/api/generate-demo-week', async (req, res) => {
 });
 
 // ─── Serve frontend ──────────────────────────────────────────
+// ✅ This sends index.html from the root directory
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
