@@ -13,7 +13,15 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 app.use(cors());
 app.use(express.json());
+const path = require('path');
 
+// Serve static files from the "public" folder
+app.use(express.static(path.join(__dirname)));
+
+// Optional: fallback to index.html for any non-API route (SPA support)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 // -------------------- Helpers --------------------
 
 // Generic GET (list) with optional join to a related table
