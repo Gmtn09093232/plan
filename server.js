@@ -484,13 +484,14 @@ app.delete('/api/plans/:id', async (req, res) => {
   }
 });
 
-// ======================== Static Files & SPA Fallback ========================
+// ======================== Static Files & Fallback ========================
 
-// Serve static files (like index.html, CSS, JS) from the current directory
+// Serve static files (index.html, CSS, JS, etc.) from the current directory
 app.use(express.static(path.join(__dirname)));
 
-// Catch-all: for any non-API GET request, send index.html (SPA support)
-app.get('*', (req, res) => {
+// Catch-all: for any request that hasn't been handled, send index.html
+// (This supports client‑side routing, e.g., if your HTML uses History API)
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
