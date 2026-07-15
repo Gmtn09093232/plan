@@ -145,6 +145,20 @@
         .edit-btn:hover {
             color: #0f2a4f;
         }
+        .machine-list-card {
+            background: #f8faff;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-top: 0.75rem;
+            border: 1px solid #e9eef4;
+        }
+        .machine-list-card .badge {
+            font-weight: 400;
+            background: #e0e7f0;
+            color: #1a3a6b;
+            margin: 0.15rem 0.25rem;
+            padding: 0.3rem 0.7rem;
+        }
     </style>
 </head>
 <body>
@@ -229,7 +243,7 @@
         <div class="tab-content" id="mainTabsContent">
 
             <!-- ============================================================ -->
-            <!-- SHOPS -->
+            <!-- SHOPS (MODIFIED) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade show active" id="pane-shops" role="tabpanel">
                 <div class="card">
@@ -245,16 +259,35 @@
                                     <form id="form-shops">
                                         <div class="mb-2">
                                             <label class="form-label">Shop Name *</label>
-                                            <input type="text" class="form-control" name="shop_name" required />
+                                            <select class="form-select" name="shop_name" required>
+                                                <option value="">Select shop name…</option>
+                                                <option value="Machine Shop">Machine Shop</option>
+                                                <option value="Fabrication Shop">Fabrication Shop</option>
+                                                <option value="Welding Shop">Welding Shop</option>
+                                                <option value="Forging Pressing and Heat Treatment Machine Shop">Forging Pressing and Heat Treatment Machine Shop</option>
+                                                <option value="Casting Shop">Casting Shop</option>
+                                                <option value="Wood Shop">Wood Shop</option>
+                                                <option value="Polishing and Painting Shop">Polishing and Painting Shop</option>
+                                                <option value="Assembly Shop">Assembly Shop</option>
+                                            </select>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Shop Type</label>
-                                            <input type="text" class="form-control" name="shop_type" />
+                                            <label class="form-label">Shop Type (Machine Category) *</label>
+                                            <select class="form-select" name="shop_type" required>
+                                                <option value="">Select a shop name first…</option>
+                                            </select>
                                         </div>
                                         <button type="submit" class="btn btn-primary w-100 mt-2">
                                             <i class="fas fa-save me-1"></i> Create Shop
                                         </button>
                                     </form>
+                                    <!-- Machine list preview based on selected type -->
+                                    <div class="machine-list-card mt-3" id="machine-list-preview">
+                                        <small class="text-muted"><i class="fas fa-cogs me-1"></i> Machines of this type:</small>
+                                        <div id="machine-list-items" class="mt-1">
+                                            <span class="text-muted" style="font-size:0.9rem;">Select a shop type to see machines</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-lg-8">
@@ -278,7 +311,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- OPERATORS -->
+            <!-- OPERATORS (unchanged) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-operators" role="tabpanel">
                 <div class="card">
@@ -334,7 +367,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- MACHINES -->
+            <!-- MACHINES (unchanged) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-machines" role="tabpanel">
                 <div class="card">
@@ -395,7 +428,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- PROJECTS -->
+            <!-- PROJECTS (unchanged) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-projects" role="tabpanel">
                 <div class="card">
@@ -449,7 +482,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- ASSEMBLY PARTS -->
+            <!-- ASSEMBLY PARTS (unchanged) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-parts" role="tabpanel">
                 <div class="card">
@@ -500,7 +533,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- PRODUCTION RECORDS -->
+            <!-- PRODUCTION RECORDS (unchanged) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-prod" role="tabpanel">
                 <div class="card">
@@ -664,7 +697,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- PROJECT PRODUCTION -->
+            <!-- PROJECT PRODUCTION (unchanged) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-project-prod" role="tabpanel">
                 <div class="card">
@@ -760,7 +793,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- MACHINE TIME REG -->
+            <!-- MACHINE TIME REG (unchanged) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-machine-time" role="tabpanel">
                 <div class="card">
@@ -836,7 +869,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- ASSEMBLY RECORDS -->
+            <!-- ASSEMBLY RECORDS (unchanged) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-assembly" role="tabpanel">
                 <div class="card">
@@ -947,7 +980,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- ISSUES -->
+            <!-- ISSUES (unchanged) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-issues" role="tabpanel">
                 <div class="card">
@@ -1022,7 +1055,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- PLANS -->
+            <!-- PLANS (unchanged) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-plans" role="tabpanel">
                 <div class="card">
@@ -1134,10 +1167,20 @@
         // ─── CONFIG ────────────────────────────────────────────────────────
         const API_BASE = 'http://localhost:3000/api';
 
+        // ─── MAPPING: shop name → machine categories ──────────────────
+        const shopMachineMap = {
+            "Machine Shop": ["Lathe", "Milling", "Drilling", "Grinding", "CNC", "Honing", "Broaching"],
+            "Fabrication Shop": ["Shearing", "Bending", "Rolling", "Cutting", "Welding", "Punching"],
+            "Welding Shop": ["Arc Welding", "MIG Welding", "TIG Welding", "Spot Welding", "Submerged Arc"],
+            "Forging Pressing and Heat Treatment Machine Shop": ["Forging Press", "Heat Treatment Furnace", "Quenching Tank", "Tempering Furnace", "Induction Heater"],
+            "Casting Shop": ["Induction Furnace", "Molding Machine", "Core Shooter", "Shot Blast", "Pouring Ladle"],
+            "Wood Shop": ["Table Saw", "Band Saw", "Planer", "Sander", "Router", "Jointer"],
+            "Polishing and Painting Shop": ["Polishing Machine", "Spray Booth", "Oven", "Grinder", "Buffing Machine"],
+            "Assembly Shop": ["Assembly Line", "Conveyor", "Workstations", "Pneumatic Tools", "Torque Wrench"]
+        };
+
         // ─── HELPERS ──────────────────────────────────────────────────────
         function getVal(id) { return document.getElementById(id); }
-
-        function getValSel(id) { return document.getElementById(id); }
 
         function showToast(message, type = 'success') {
             const container = document.querySelector('.toast-container');
@@ -1187,6 +1230,8 @@
         }
 
         // ─── SHOPS ──────────────────────────────────────────────────────
+        let allMachines = [];
+
         async function loadShops() {
             const res = await apiFetch('/shops');
             renderTable('tbody-shops', res, s => `
@@ -1215,6 +1260,11 @@
             if (res.error) { showToast(res.error, 'danger'); return; }
             showToast('Shop created successfully');
             e.target.reset();
+            // reset the shop type dropdown to placeholder
+            const typeSelect = document.querySelector('form#form-shops [name="shop_type"]');
+            if (typeSelect) {
+                typeSelect.innerHTML = '<option value="">Select a shop name first…</option>';
+            }
             loadShops();
         });
 
@@ -1238,6 +1288,56 @@
             showToast('Shop updated');
             loadShops();
         };
+
+        // ─── MACHINE LIST PREVIEW ──────────────────────────────────
+        function updateMachinePreview(shopType) {
+            const container = document.getElementById('machine-list-items');
+            if (!shopType) {
+                container.innerHTML = `<span class="text-muted" style="font-size:0.9rem;">Select a shop type to see machines</span>`;
+                return;
+            }
+            const filtered = allMachines.filter(m => 
+                m.category && m.category.toLowerCase() === shopType.toLowerCase()
+            );
+            if (filtered.length === 0) {
+                container.innerHTML = `<span class="text-muted" style="font-size:0.9rem;">No machines found for this shop type</span>`;
+                return;
+            }
+            const badges = filtered.map(m => `<span class="badge bg-light text-dark me-1 mb-1">${esc(m.machine_name)} (${esc(m.machine_code)})</span>`).join('');
+            container.innerHTML = badges;
+        }
+
+        // ─── POPULATE SHOP TYPE DROPDOWN BASED ON SHOP NAME ──────────
+        function populateShopType(shopName) {
+            const typeSelect = document.querySelector('form#form-shops [name="shop_type"]');
+            if (!typeSelect) return;
+            // Clear options
+            typeSelect.innerHTML = '';
+            if (!shopName || !shopMachineMap[shopName]) {
+                typeSelect.innerHTML = `<option value="">Select a shop name first…</option>`;
+                return;
+            }
+            const machines = shopMachineMap[shopName];
+            // Add placeholder
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Select machine category…';
+            typeSelect.appendChild(placeholder);
+            // Add each machine category as an option
+            machines.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                typeSelect.appendChild(opt);
+            });
+            // Trigger preview update if a value is already selected (usually none)
+            if (typeSelect.value) {
+                updateMachinePreview(typeSelect.value);
+            } else {
+                // Clear preview
+                updateMachinePreview(null);
+            }
+        }
 
         // ─── OPERATORS ──────────────────────────────────────────────────
         async function loadOperators() {
@@ -1294,6 +1394,7 @@
         // ─── MACHINES ──────────────────────────────────────────────────
         async function loadMachines() {
             const res = await apiFetch('/machines');
+            allMachines = res;
             renderTable('tbody-machines', res, m => `
                     <tr>
                         <td>${m.machine_id}</td>
@@ -1309,6 +1410,11 @@
                 `);
             updateCount('machine-count', res);
             populateSelect('form-machine-time [name="machine_id"]', res, 'machine_id', 'machine_name');
+            // Update preview if shop type is already selected
+            const typeSelect = document.querySelector('form#form-shops [name="shop_type"]');
+            if (typeSelect && typeSelect.value) {
+                updateMachinePreview(typeSelect.value);
+            }
         }
 
         document.getElementById('form-machines').addEventListener('submit', async (e) => {
@@ -1474,12 +1580,10 @@
             e.preventDefault();
             const fd = new FormData(e.target);
             const data = Object.fromEntries(fd);
-            // convert checkboxes
             const boolFields = ['lack_materials', 'lack_tool_cutter', 'design_problem', 'machine_breakdown',
                 'machine_sequence_issue', 'over_capacity', 'machine_occupied', 'own_problem'
             ];
             boolFields.forEach(f => { data[f] = data[f] === 'true'; });
-            // parse numbers
             ['planned_qty', 'actual_qty', 'sick_days', 'permission_days'].forEach(f => {
                 if (data[f]) data[f] = parseInt(data[f]);
             });
@@ -1812,6 +1916,7 @@
 
         // ─── INIT ──────────────────────────────────────────────────
         async function init() {
+            // Load all data
             await loadShops();
             await loadOperators();
             await loadMachines();
@@ -1823,9 +1928,32 @@
             await loadAssembly();
             await loadIssues();
             await loadPlans();
+
+            // ─── Event listeners for shop name dropdown ──────────
+            const shopNameSelect = document.querySelector('form#form-shops [name="shop_name"]');
+            const shopTypeSelect = document.querySelector('form#form-shops [name="shop_type"]');
+
+            if (shopNameSelect) {
+                shopNameSelect.addEventListener('change', function() {
+                    const selected = this.value;
+                    populateShopType(selected);
+                    // Clear preview
+                    updateMachinePreview(null);
+                });
+            }
+
+            if (shopTypeSelect) {
+                shopTypeSelect.addEventListener('change', function() {
+                    updateMachinePreview(this.value);
+                });
+            }
+
+            // Initial population if a shop name is already selected
+            if (shopNameSelect && shopNameSelect.value) {
+                populateShopType(shopNameSelect.value);
+            }
         }
 
-        // Re-populate dropdowns after each load
         document.addEventListener('DOMContentLoaded', init);
     </script>
 
