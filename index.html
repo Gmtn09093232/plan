@@ -3,1056 +3,1830 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🏭 Bahir-Dar Factory · Complete Production Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
-    </script>
+    <title>Bahir-Dar Factory · Production Management</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome 6 (free) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* ───────────── RESET & BASE ───────────── */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-        }
         body {
-            background: #f0f4fa;
-            padding: 18px;
-            color: #1e293b;
+            background: #f4f7fc;
+            padding-bottom: 3rem;
         }
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
-
-        /* ───────────── HEADER ───────────── */
-        .header {
-            background: linear-gradient(135deg, #0b2a4a, #1a4b6d);
-            color: #fff;
-            padding: 22px 30px;
-            border-radius: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-            box-shadow: 0 8px 28px rgba(11, 42, 74, 0.30);
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 20, 50, 0.08);
+            border: none;
+            margin-bottom: 1.8rem;
         }
-        .header h1 {
+        .card-header {
+            background: white;
+            border-bottom: 2px solid #e9eef4;
             font-weight: 600;
-            font-size: 1.7rem;
-            letter-spacing: -0.3px;
+            font-size: 1.1rem;
+            padding: 1rem 1.25rem;
+            border-radius: 16px 16px 0 0 !important;
         }
-        .header h1 i {
-            margin-right: 12px;
-            color: #facc15;
+        .table-wrapper {
+            max-height: 380px;
+            overflow-y: auto;
         }
-        .header .week-badge {
-            background: rgba(255, 255, 255, 0.13);
-            padding: 8px 24px;
-            border-radius: 40px;
+        .table-wrapper table {
+            margin-bottom: 0;
+        }
+        .table th {
+            background: #f8faff;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .form-label {
             font-weight: 500;
             font-size: 0.9rem;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .header .week-badge i {
-            margin-right: 8px;
-            color: #7ec8e3;
-        }
-
-        /* ───────────── STAT CARDS ───────────── */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .stat-card {
-            background: #fff;
-            border-radius: 14px;
-            padding: 18px 18px 14px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            border: 1px solid #e9edf2;
-            transition: transform 0.12s;
-        }
-        .stat-card:hover {
-            transform: translateY(-2px);
-        }
-        .stat-card .label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #64748b;
-            font-weight: 600;
-        }
-        .stat-card .value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-top: 4px;
-            color: #0b2a4a;
-        }
-        .stat-card .sub {
-            font-size: 0.75rem;
-            color: #64748b;
-            margin-top: 2px;
-        }
-        .stat-card .icon {
-            float: right;
-            font-size: 1.6rem;
-            opacity: 0.18;
-            color: #1a4b6d;
-        }
-
-        /* ───────────── TAB NAV ───────────── */
-        .sheet-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 14px;
-        }
-        .sheet-tab {
-            background: #f1f5f9;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 30px;
-            font-weight: 500;
-            font-size: 0.78rem;
-            color: #475569;
-            cursor: pointer;
-            transition: 0.15s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .sheet-tab:hover {
-            background: #e2e8f0;
-        }
-        .sheet-tab.active {
-            background: #0b2a4a;
-            color: #fff;
-            box-shadow: 0 2px 10px rgba(11, 42, 74, 0.25);
-        }
-        .sheet-tab .badge-plan {
-            background: #facc15;
-            color: #0b2a4a;
-            border-radius: 30px;
-            padding: 0 8px;
-            font-size: 0.6rem;
-            font-weight: 700;
-        }
-
-        /* ───────────── CARDS ───────────── */
-        .card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 22px 24px 26px;
-            border: 1px solid #e9edf2;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-            margin-bottom: 22px;
-        }
-        .card h3 {
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin-bottom: 14px;
-            color: #0b2a4a;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .card h3 i {
-            color: #1a4b6d;
-            font-size: 1.1rem;
-        }
-        .card h3 .subtitle {
-            font-weight: 400;
-            font-size: 0.75rem;
-            color: #64748b;
-            margin-left: 6px;
-        }
-        .table-wrap {
-            overflow-x: auto;
-            margin-top: 4px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.82rem;
-        }
-        th {
-            background: #f1f5f9;
             color: #1e293b;
-            font-weight: 600;
-            padding: 9px 8px;
-            text-align: left;
-            border-bottom: 2px solid #dce1e8;
-            white-space: nowrap;
         }
-        td {
-            padding: 8px 8px;
-            border-bottom: 1px solid #edf2f7;
+        .btn-primary {
+            background: #1a3a6b;
+            border-color: #1a3a6b;
+        }
+        .btn-primary:hover {
+            background: #0f2a4f;
+            border-color: #0f2a4f;
+        }
+        .btn-outline-secondary {
+            border-color: #d0d9e8;
+        }
+        .nav-tabs .nav-link {
+            color: #1e293b;
+            font-weight: 500;
+            border: none;
+            padding: 0.65rem 1.2rem;
+            border-radius: 40px;
+            margin-right: 0.3rem;
+            transition: 0.2s;
+        }
+        .nav-tabs .nav-link:hover {
+            background: #e9eef4;
+            color: #0f2a4f;
+        }
+        .nav-tabs .nav-link.active {
+            background: #1a3a6b;
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 58, 107, 0.25);
+        }
+        .tab-pane {
+            padding-top: 1.5rem;
+        }
+        .badge-status {
+            font-weight: 400;
+            padding: 0.35rem 0.75rem;
+        }
+        .toast-container {
+            z-index: 9999;
+        }
+        .form-section {
+            background: #fafcff;
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e9eef4;
+        }
+        .table td {
             vertical-align: middle;
         }
-        tr:hover td {
-            background: #fafcff;
-        }
-        .badge {
-            display: inline-block;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.2px;
-        }
-        .badge-green {
-            background: #dcfce7;
-            color: #166534;
-        }
-        .badge-yellow {
-            background: #fef9c3;
-            color: #854d0e;
-        }
-        .badge-red {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        .badge-blue {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        .badge-purple {
-            background: #ede9fe;
-            color: #5b21b6;
-        }
-        .badge-gray {
-            background: #f1f5f9;
-            color: #475569;
-        }
-        .text-muted {
-            color: #94a3b8;
-            font-size: 0.75rem;
-        }
-
-        /* ───────────── LAYOUT ROWS ───────────── */
-        .row-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-        }
-        .row-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 22px;
-        }
-        @media (max-width: 1000px) {
-            .row-2,
-            .row-3 {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* ───────────── CHART ───────────── */
-        .chart-container {
-            height: 190px;
-            margin-top: 6px;
-        }
-        .chart-container-sm {
-            height: 150px;
-            margin-top: 4px;
-        }
-
-        /* ───────────── PLAN / ACTUAL COMPARE ───────────── */
-        .compare-bar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 4px 0;
-        }
-        .compare-bar .label {
-            width: 100px;
-            font-size: 0.78rem;
-            font-weight: 500;
-            flex-shrink: 0;
-        }
-        .compare-bar .track {
-            flex: 1;
-            height: 10px;
-            background: #e9edf2;
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
-        }
-        .compare-bar .track .fill-plan {
-            height: 100%;
-            background: #3b82f6;
-            border-radius: 20px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0.6;
-        }
-        .compare-bar .track .fill-actual {
-            height: 100%;
-            background: #22c55e;
-            border-radius: 20px;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        .compare-bar .pct {
-            font-size: 0.75rem;
-            font-weight: 600;
-            width: 44px;
-            text-align: right;
-            flex-shrink: 0;
-        }
-
-        /* ───────────── FOOTER ───────────── */
-        .footer-note {
-            margin-top: 28px;
-            padding: 16px 24px;
-            background: #fff;
-            border-radius: 16px;
-            border: 1px solid #e9edf2;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            font-size: 0.78rem;
-            color: #475569;
-        }
-        .footer-note span i {
-            margin-right: 6px;
-            color: #64748b;
-        }
-
-        /* ───────────── MISC ───────────── */
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .gap-2 {
-            gap: 8px;
-        }
-        .mt-2 {
-            margin-top: 12px;
-        }
-        .mb-1 {
-            margin-bottom: 6px;
-        }
-        .fw-600 {
-            font-weight: 600;
-        }
-        .shop-summary {
-            background: #f8fafc;
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-top: 6px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px 28px;
-            font-size: 0.78rem;
-        }
-        .shop-summary span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .shop-summary .dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 4px;
-        }
-        .dot-green {
-            background: #22c55e;
-        }
-        .dot-yellow {
-            background: #facc15;
-        }
-        .dot-red {
-            background: #ef4444;
-        }
-        .dot-blue {
-            background: #3b82f6;
-        }
-        .highlight-box {
-            background: #fefce8;
-            border-left: 4px solid #facc15;
-            padding: 10px 14px;
-            border-radius: 6px;
-            margin-top: 8px;
+        .action-btn {
+            padding: 0.2rem 0.5rem;
             font-size: 0.8rem;
         }
-        .highlight-box strong {
-            color: #0b2a4a;
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem 0;
+        }
+        .table-responsive {
+            border-radius: 12px;
+            border: 1px solid #eef2f8;
+            overflow: hidden;
+        }
+        .table-responsive table {
+            margin-bottom: 0;
+        }
+        .table-hover tbody tr:hover {
+            background: #f8fbff;
+        }
+        .stat-badge {
+            background: #eef4ff;
+            color: #1a3a6b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .delete-btn {
+            color: #b91c1c;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            color: #7f1d1d;
+        }
+        .edit-btn {
+            color: #1a3a6b;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            margin-right: 6px;
+        }
+        .edit-btn:hover {
+            color: #0f2a4f;
         }
     </style>
 </head>
 <body>
 
-    <div class="container" id="app">
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background: #0b1a30 !important;">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-industry me-2"></i> Bahir-Dar · Production
+            </a>
+            <span class="navbar-text text-light-50 small">
+                <i class="fas fa-database me-1"></i> Supabase
+            </span>
+        </div>
+    </nav>
 
-        <!-- ════════ HEADER ════════ -->
-        <header class="header">
-            <h1><i class="fas fa-industry"></i> Bahir-Dar Factory</h1>
-            <div class="week-badge">
-                <i class="fas fa-calendar-alt"></i> Week 07–13 / 09 / 2017 ዓ.ም
-                <span style="margin-left:14px;background:#facc15;color:#0b2a4a;padding:2px 12px;border-radius:30px;font-size:0.7rem;font-weight:700;">
-                    <i class="fas fa-calendar-plus"></i> Plan 14–20
-                </span>
+    <div class="container-fluid px-4 mt-4">
+
+        <!-- ========== TOAST CONTAINER ========== -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+        <!-- ========== TABS ========== -->
+        <ul class="nav nav-tabs flex-nowrap overflow-auto pb-1" id="mainTabs" role="tablist" style="gap: 4px; flex-wrap: nowrap;">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-shops" data-bs-toggle="tab" data-bs-target="#pane-shops" type="button" role="tab">
+                    <i class="fas fa-store me-1"></i> Shops
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-operators" data-bs-toggle="tab" data-bs-target="#pane-operators" type="button" role="tab">
+                    <i class="fas fa-user me-1"></i> Operators
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-machines" data-bs-toggle="tab" data-bs-target="#pane-machines" type="button" role="tab">
+                    <i class="fas fa-cogs me-1"></i> Machines
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-projects" data-bs-toggle="tab" data-bs-target="#pane-projects" type="button" role="tab">
+                    <i class="fas fa-tasks me-1"></i> Projects
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-parts" data-bs-toggle="tab" data-bs-target="#pane-parts" type="button" role="tab">
+                    <i class="fas fa-puzzle-piece me-1"></i> Parts
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-prod" data-bs-toggle="tab" data-bs-target="#pane-prod" type="button" role="tab">
+                    <i class="fas fa-clipboard-list me-1"></i> Prod Records
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-project-prod" data-bs-toggle="tab" data-bs-target="#pane-project-prod" type="button" role="tab">
+                    <i class="fas fa-chart-line me-1"></i> Project Prod
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-machine-time" data-bs-toggle="tab" data-bs-target="#pane-machine-time" type="button" role="tab">
+                    <i class="fas fa-clock me-1"></i> Machine Time
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-assembly" data-bs-toggle="tab" data-bs-target="#pane-assembly" type="button" role="tab">
+                    <i class="fas fa-tools me-1"></i> Assembly
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-issues" data-bs-toggle="tab" data-bs-target="#pane-issues" type="button" role="tab">
+                    <i class="fas fa-exclamation-triangle me-1"></i> Issues
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-plans" data-bs-toggle="tab" data-bs-target="#pane-plans" type="button" role="tab">
+                    <i class="fas fa-calendar-plus me-1"></i> Plans
+                </button>
+            </li>
+        </ul>
+
+        <!-- ========== TAB CONTENT ========== -->
+        <div class="tab-content" id="mainTabsContent">
+
+            <!-- ============================================================ -->
+            <!-- SHOPS -->
+            <!-- ============================================================ -->
+            <div class="tab-pane fade show active" id="pane-shops" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-store me-2 text-primary"></i>Shops</span>
+                        <span class="stat-badge" id="shop-count">0 records</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-4">
+                                <div class="form-section">
+                                    <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Shop</h6>
+                                    <form id="form-shops">
+                                        <div class="mb-2">
+                                            <label class="form-label">Shop Name *</label>
+                                            <input type="text" class="form-control" name="shop_name" required />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Shop Type</label>
+                                            <input type="text" class="form-control" name="shop_type" />
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                                            <i class="fas fa-save me-1"></i> Create Shop
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="table-shops">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th style="width:90px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-shops"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </header>
 
-        <!-- ════════ STATS ════════ -->
-        <section class="stats-grid" id="statsGrid">
-            <div class="stat-card"><i class="fas fa-users icon"></i><div class="label">Operators</div><div class="value" id="totalOps">94</div><div class="sub">across 7 shops</div></div>
-            <div class="stat-card"><i class="fas fa-cogs icon"></i><div class="label">Machines</div><div class="value" id="totalMachines">147</div><div class="sub">5 categories</div></div>
-            <div class="stat-card"><i class="fas fa-clipboard-list icon"></i><div class="label">Projects</div><div class="value" id="totalProjects">18</div><div class="sub">active</div></div>
-            <div class="stat-card"><i class="fas fa-check-circle icon"></i><div class="label">Overall Perf.</div><div class="value" id="overallPerf">83%</div><div class="sub">qty · +2% vs plan</div></div>
-            <div class="stat-card"><i class="fas fa-clock icon"></i><div class="label">Machine Util.</div><div class="value" id="machineUtil">71%</div><div class="sub">planned vs actual</div></div>
-            <div class="stat-card"><i class="fas fa-flag icon"></i><div class="label">Plan Coverage</div><div class="value" id="planCoverage">92%</div><div class="sub">next week ready</div></div>
-        </section>
+            <!-- ============================================================ -->
+            <!-- OPERATORS -->
+            <!-- ============================================================ -->
+            <div class="tab-pane fade" id="pane-operators" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-user me-2 text-primary"></i>Operators</span>
+                        <span class="stat-badge" id="operator-count">0 records</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-4">
+                                <div class="form-section">
+                                    <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Operator</h6>
+                                    <form id="form-operators">
+                                        <div class="mb-2">
+                                            <label class="form-label">Full Name *</label>
+                                            <input type="text" class="form-control" name="full_name" required />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Shop *</label>
+                                            <select class="form-select" name="shop_id" required>
+                                                <option value="">Select shop…</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-2 form-check">
+                                            <input class="form-check-input" type="checkbox" name="is_active" value="true" checked />
+                                            <label class="form-check-label">Active</label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                                            <i class="fas fa-save me-1"></i> Create Operator
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="table-operators">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Shop</th>
+                                                <th>Active</th>
+                                                <th style="width:90px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-operators"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- ════════ TAB NAV ════════ -->
-        <div class="sheet-tabs" id="sheetTabs">
-            <button class="sheet-tab active" data-sheet="op-report"><i class="fas fa-user-cog"></i> Operator Report</button>
-            <button class="sheet-tab" data-sheet="project-report"><i class="fas fa-project-diagram"></i> Project Report</button>
-            <button class="sheet-tab" data-sheet="machine-report"><i class="fas fa-microchip"></i> Machine Report</button>
-            <button class="sheet-tab" data-sheet="assembly-report"><i class="fas fa-tools"></i> Assembly Report</button>
-            <button class="sheet-tab" data-sheet="reason"><i class="fas fa-exclamation-triangle"></i> Reasons</button>
-            <button class="sheet-tab" data-sheet="op-plan"><i class="fas fa-calendar-plus"></i> Operator Plan <span class="badge-plan">14–20</span></button>
-            <button class="sheet-tab" data-sheet="project-plan"><i class="fas fa-calendar-plus"></i> Project Plan <span class="badge-plan">14–20</span></button>
-            <button class="sheet-tab" data-sheet="machine-plan"><i class="fas fa-calendar-plus"></i> Machine Plan <span class="badge-plan">14–20</span></button>
-            <button class="sheet-tab" data-sheet="assembly-plan"><i class="fas fa-calendar-plus"></i> Assembly Plan <span class="badge-plan">14–20</span></button>
-        </div>
+            <!-- ============================================================ -->
+            <!-- MACHINES -->
+            <!-- ============================================================ -->
+            <div class="tab-pane fade" id="pane-machines" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-cogs me-2 text-primary"></i>Machines</span>
+                        <span class="stat-badge" id="machine-count">0 records</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-4">
+                                <div class="form-section">
+                                    <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Machine</h6>
+                                    <form id="form-machines">
+                                        <div class="mb-2">
+                                            <label class="form-label">Machine Code *</label>
+                                            <input type="text" class="form-control" name="machine_code" required />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Machine Name *</label>
+                                            <input type="text" class="form-control" name="machine_name" required />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Shop *</label>
+                                            <select class="form-select" name="shop_id" required>
+                                                <option value="">Select shop…</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Category</label>
+                                            <input type="text" class="form-control" name="category" />
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                                            <i class="fas fa-save me-1"></i> Create Machine
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="table-machines">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Code</th>
+                                                <th>Name</th>
+                                                <th>Shop</th>
+                                                <th>Category</th>
+                                                <th style="width:90px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-machines"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- ════════ DYNAMIC CONTENT ════════ -->
-        <div id="sheetContent"></div>
+            <!-- ============================================================ -->
+            <!-- PROJECTS -->
+            <!-- ============================================================ -->
+            <div class="tab-pane fade" id="pane-projects" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-tasks me-2 text-primary"></i>Projects</span>
+                        <span class="stat-badge" id="project-count">0 records</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-4">
+                                <div class="form-section">
+                                    <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Project</h6>
+                                    <form id="form-projects">
+                                        <div class="mb-2">
+                                            <label class="form-label">Project Name *</label>
+                                            <input type="text" class="form-control" name="project_name" required />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Category</label>
+                                            <input type="text" class="form-control" name="category" />
+                                        </div>
+                                        <div class="mb-2 form-check">
+                                            <input class="form-check-input" type="checkbox" name="is_active" value="true" checked />
+                                            <label class="form-check-label">Active</label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                                            <i class="fas fa-save me-1"></i> Create Project
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="table-projects">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Category</th>
+                                                <th>Active</th>
+                                                <th style="width:90px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-projects"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- ════════ FOOTER ════════ -->
-        <div class="footer-note">
-            <span><i class="fas fa-user"></i> Prepared by: Yitbarek B</span>
-            <span><i class="fas fa-check"></i> Checked by: Habtamu Ayizobel</span>
-            <span><i class="fas fa-stamp"></i> Approved by: Zemenu Tefera</span>
-            <span><i class="fas fa-calendar-day"></i> date: 13-09-2017</span>
-        </div>
+            <!-- ============================================================ -->
+            <!-- ASSEMBLY PARTS -->
+            <!-- ============================================================ -->
+            <div class="tab-pane fade" id="pane-parts" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-puzzle-piece me-2 text-primary"></i>Assembly Parts</span>
+                        <span class="stat-badge" id="part-count">0 records</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-4">
+                                <div class="form-section">
+                                    <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Part</h6>
+                                    <form id="form-parts">
+                                        <div class="mb-2">
+                                            <label class="form-label">Part Name *</label>
+                                            <input type="text" class="form-control" name="part_name" required />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Project</label>
+                                            <select class="form-select" name="project_id">
+                                                <option value="">None</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                                            <i class="fas fa-save me-1"></i> Create Part
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="table-parts">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Part Name</th>
+                                                <th>Project</th>
+                                                <th style="width:90px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-parts"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    </div>
+            <!-- ============================================================ -->
+            <!-- PRODUCTION RECORDS -->
+            <!-- ============================================================ -->
+            <div class="tab-pane fade" id="pane-prod" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-clipboard-list me-2 text-primary"></i>Production Records</span>
+                        <span class="stat-badge" id="prod-count">0 records</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-5">
+                                <div class="form-section" style="max-height:600px; overflow-y:auto;">
+                                    <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Record</h6>
+                                    <form id="form-prod">
+                                        <div class="mb-2">
+                                            <label class="form-label">Operator *</label>
+                                            <select class="form-select" name="operator_id" required>
+                                                <option value="">Select operator…</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Shop *</label>
+                                            <select class="form-select" name="shop_id" required>
+                                                <option value="">Select shop…</option>
+                                            </select>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Week Start *</label>
+                                                <input type="date" class="form-control" name="week_start" required />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Week End *</label>
+                                                <input type="date" class="form-control" name="week_end" required />
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Planned Part</label>
+                                            <input type="text" class="form-control" name="planned_part" />
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Planned Qty</label>
+                                                <input type="number" class="form-control" name="planned_qty" />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Planned Time</label>
+                                                <input type="number" step="0.01" class="form-control" name="planned_time" />
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Actual Part</label>
+                                            <input type="text" class="form-control" name="actual_part" />
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Actual Qty</label>
+                                                <input type="number" class="form-control" name="actual_qty" />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Actual Time</label>
+                                                <input type="number" step="0.01" class="form-control" name="actual_time" />
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Performance %</label>
+                                            <input type="number" step="0.01" class="form-control" name="performance_pct" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Delay Reason</label>
+                                            <input type="text" class="form-control" name="delay_reason" />
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <label class="form-label">Sick Days</label>
+                                                <input type="number" class="form-control" name="sick_days" />
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="form-label">Permission Days</label>
+                                                <input type="number" class="form-control" name="permission_days" />
+                                            </div>
+                                            <div class="col-4 d-flex align-items-end">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="lack_materials" value="true" />
+                                                    <label class="form-check-label">Lack Materials</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-1">
+                                            <div class="col-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="lack_tool_cutter" value="true" />
+                                                    <label class="form-check-label">Lack Tool/Cutter</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="design_problem" value="true" />
+                                                    <label class="form-check-label">Design Problem</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="machine_breakdown" value="true" />
+                                                    <label class="form-check-label">Machine Breakdown</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-1">
+                                            <div class="col-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="machine_sequence_issue" value="true" />
+                                                    <label class="form-check-label">Seq Issue</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="over_capacity" value="true" />
+                                                    <label class="form-check-label">Over Capacity</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="machine_occupied" value="true" />
+                                                    <label class="form-check-label">Machine Occupied</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="own_problem" value="true" />
+                                                <label class="form-check-label">Own Problem</label>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                                            <i class="fas fa-save me-1"></i> Create Record
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="table-prod">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Operator</th>
+                                                <th>Week</th>
+                                                <th>Planned Qty</th>
+                                                <th>Actual Qty</th>
+                                                <th>Perf%</th>
+                                                <th style="width:90px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-prod"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <!-- ============================================================ -->
+            <!-- PROJECT PRODUCTION -->
+            <!-- ============================================================ -->
+            <div class="tab-pane fade" id="pane-project-prod" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-chart-line me-2 text-primary"></i>Project Production</span>
+                        <span class="stat-badge" id="project-prod-count">0 records</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-4">
+                                <div class="form-section" style="max-height:600px; overflow-y:auto;">
+                                    <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Project Production</h6>
+                                    <form id="form-project-prod">
+                                        <div class="mb-2">
+                                            <label class="form-label">Project *</label>
+                                            <select class="form-select" name="project_id" required>
+                                                <option value="">Select project…</option>
+                                            </select>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Week Start *</label>
+                                                <input type="date" class="form-control" name="week_start" required />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Week End *</label>
+                                                <input type="date" class="form-control" name="week_end" required />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Planned Qty</label>
+                                                <input type="number" class="form-control" name="planned_qty" />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Planned Time</label>
+                                                <input type="number" step="0.01" class="form-control" name="planned_time" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Actual Qty</label>
+                                                <input type="number" class="form-control" name="actual_qty" />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Actual Time</label>
+                                                <input type="number" step="0.01" class="form-control" name="actual_time" />
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Performance %</label>
+                                            <input type="number" step="0.01" class="form-control" name="performance_pct" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Upto Date Qty</label>
+                                            <input type="number" class="form-control" name="upto_date_qty" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Upto Date Time</label>
+                                            <input type="text" class="form-control" name="upto_date_time" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Overall Perf %</label>
+                                            <input type="number" step="0.01" class="form-control" name="overall_perf_pct" />
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                                            <i class="fas fa-save me-1"></i> Create Record
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="table-project-prod">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Project</th>
+                                                <th>Week</th>
+                                                <th>Planned</th>
+                                                <th>Actual</th>
+                                                <th>Perf%</th>
+                                                <th style="width:90px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-project-prod"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- MACHINE TIME REG -->
+            <!-- ============================================================ -->
+            <div class="tab-pane fade" id="pane-machine-time" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-clock me-2 text-primary"></i>Machine Time Registration</span>
+                        <span class="stat-badge" id="machine-time-count">0 records</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-4">
+                                <div class="form-section">
+                                    <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Machine Time</h6>
+                                    <form id="form-machine-time">
+                                        <div class="mb-2">
+                                            <label class="form-label">Machine *</label>
+                                            <select class="form-select" name="machine_id" required>
+                                                <option value="">Select machine…</option>
+                                            </select>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Week Start *</label>
+                                                <input type="date" class="form-control" name="week_start" required />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Week End *</label>
+                                                <input type="date" class="form-control" name="week_end" required />
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Planned Time</label>
+                                            <input type="number" step="0.01" class="form-control" name="planned_time" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Actual Time</label>
+                                            <input type="number" step="0.01" class="form-control" name="actual_time" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Utilization %</label>
+                                            <input type="number" step="0.01" class="form-control" name="utilization_pct" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Remark</label>
+                                            <input type="text" class="form-control" name="remark" />
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                                            <i class="fas fa-save me-1"></i> Create Record
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="table-machine-time">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Machine</th>
+                                                <th>Week</th>
+                                                <th>Planned</th>
+                                                <th>Actual</th>
+                                                <th>Util%</th>
+                                                <th style="width:90px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-machine-time"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- ASSEMBLY RECORDS -->
+            <!-- ============================================================ -->
+            <div class="tab-pane fade" id="pane-assembly" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-tools me-2 text-primary"></i>Assembly Records</span>
+                        <span class="stat-badge" id="assembly-count">0 records</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-5">
+                                <div class="form-section" style="max-height:600px; overflow-y:auto;">
+                                    <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Assembly Record</h6>
+                                    <form id="form-assembly">
+                                        <div class="mb-2">
+                                            <label class="form-label">Part *</label>
+                                            <select class="form-select" name="part_id" required>
+                                                <option value="">Select part…</option>
+                                            </select>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Week Start *</label>
+                                                <input type="date" class="form-control" name="week_start" required />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Week End *</label>
+                                                <input type="date" class="form-control" name="week_end" required />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <label class="form-label">Assembling Planned</label>
+                                                <input type="number" step="0.01" class="form-control" name="assembling_planned" />
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="form-label">Assembling WIP</label>
+                                                <input type="number" step="0.01" class="form-control" name="assembling_wip" />
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="form-label">Assembling Completed</label>
+                                                <input type="number" step="0.01" class="form-control" name="assembling_completed" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <label class="form-label">Polishing Planned</label>
+                                                <input type="number" step="0.01" class="form-control" name="polishing_planned" />
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="form-label">Polishing WIP</label>
+                                                <input type="number" step="0.01" class="form-control" name="polishing_wip" />
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="form-label">Polishing Completed</label>
+                                                <input type="number" step="0.01" class="form-control" name="polishing_completed" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <label class="form-label">Painting Planned</label>
+                                                <input type="number" step="0.01" class="form-control" name="painting_planned" />
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="form-label">Painting WIP</label>
+                                                <input type="number" step="0.01" class="form-control" name="painting_wip" />
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="form-label">Painting Completed</label>
+                                                <input type="number" step="0.01" class="form-control" name="painting_completed" />
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Upto Date Qty</label>
+                                            <input type="number" class="form-control" name="upto_date_qty" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Performance %</label>
+                                            <input type="number" step="0.01" class="form-control" name="performance_pct" />
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                                            <i class="fas fa-save me-1"></i> Create Assembly Record
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="table-assembly">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Part</th>
+                                                <th>Week</th>
+                                                <th>Assem Comp</th>
+                                                <th>Polish Comp</th>
+                                                <th>Paint Comp</th>
+                                                <th>Perf%</th>
+                                                <th style="width:90px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-assembly"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- ISSUES -->
+            <!-- ============================================================ -->
+            <div class="tab-pane fade" id="pane-issues" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-exclamation-triangle me-2 text-primary"></i>Issues</span>
+                        <span class="stat-badge" id="issue-count">0 records</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-4">
+                                <div class="form-section">
+                                    <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Issue</h6>
+                                    <form id="form-issues">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Week Start *</label>
+                                                <input type="date" class="form-control" name="week_start" required />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Week End *</label>
+                                                <input type="date" class="form-control" name="week_end" required />
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Problem *</label>
+                                            <input type="text" class="form-control" name="problem" required />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Root Cause</label>
+                                            <input type="text" class="form-control" name="root_cause" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Impact Level</label>
+                                            <input type="text" class="form-control" name="impact_level" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Solution</label>
+                                            <input type="text" class="form-control" name="solution" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Affected Project</label>
+                                            <select class="form-select" name="affected_project_id">
+                                                <option value="">None</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                                            <i class="fas fa-save me-1"></i> Create Issue
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="table-issues">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Week</th>
+                                                <th>Problem</th>
+                                                <th>Root Cause</th>
+                                                <th>Impact</th>
+                                                <th style="width:90px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-issues"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- PLANS -->
+            <!-- ============================================================ -->
+            <div class="tab-pane fade" id="pane-plans" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-calendar-plus me-2 text-primary"></i>Plans</span>
+                        <span class="stat-badge" id="plan-count">0 records</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-4">
+                                <div class="form-section">
+                                    <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Plan</h6>
+                                    <form id="form-plans">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Week Start *</label>
+                                                <input type="date" class="form-control" name="week_start" required />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Week End *</label>
+                                                <input type="date" class="form-control" name="week_end" required />
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Plan Type *</label>
+                                            <select class="form-select" name="plan_type" required>
+                                                <option value="">Select type…</option>
+                                                <option value="operator">Operator</option>
+                                                <option value="project">Project</option>
+                                                <option value="machine">Machine</option>
+                                                <option value="assembly">Assembly</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Reference ID *</label>
+                                            <input type="number" class="form-control" name="reference_id" required />
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Planned Qty</label>
+                                                <input type="number" class="form-control" name="planned_qty" />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Planned Time</label>
+                                                <input type="number" step="0.01" class="form-control" name="planned_time" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Target Qty</label>
+                                                <input type="number" class="form-control" name="target_qty" />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Target Time</label>
+                                                <input type="number" step="0.01" class="form-control" name="target_time" />
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Growth %</label>
+                                            <input type="number" step="0.01" class="form-control" name="growth_pct" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Notes</label>
+                                            <input type="text" class="form-control" name="notes" />
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                                            <i class="fas fa-save me-1"></i> Create Plan
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="table-plans">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Week</th>
+                                                <th>Type</th>
+                                                <th>Ref ID</th>
+                                                <th>Planned Qty</th>
+                                                <th>Target Qty</th>
+                                                <th>Growth%</th>
+                                                <th style="width:90px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-plans"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /tab-content -->
+    </div><!-- /container-fluid -->
+
+    <!-- ============================================================ -->
+    <!-- BOOTSTRAP JS + POPPER -->
+    <!-- ============================================================ -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- MAIN APPLICATION JAVASCRIPT -->
+    <!-- ============================================================ -->
     <script>
-        // ════════════════════════════════════════════════════════════
-        //  1.  DATA – fully populated with realistic control-engineer figures
-        // ════════════════════════════════════════════════════════════
+        // ─── CONFIG ────────────────────────────────────────────────────────
+        const API_BASE = 'http://localhost:3000/api';
 
-        const SHOPS = ['Machine Shop', 'Fabrication Shop', 'Forging & Heat Treat', 'Welding Shop', 'Polishing', 'Painting',
-            'Assembly'
-        ];
+        // ─── HELPERS ──────────────────────────────────────────────────────
+        function getVal(id) { return document.getElementById(id); }
 
-        // ─── Operators per shop ───
-        const OPERATORS = {
-            'Machine Shop': [
-                'Yilikal Anteneh', 'Ayshshim Chalie', 'Tsegaye Chanie', 'Melkamu Yaregal',
-                'Dinkayehu Melese', 'Mulu Abebe', 'Birtukan Alamirew', 'Meseret Mulugieta',
-                'Solomon Alemu', 'Nahom Solomon', 'Getasew Dessie', 'Takele Mekie',
-                'Tilaye Aragew', 'Ayaliew Worku', 'Biniyam Misganaw', 'Habtamu Afewerk',
-                'Oumer Hasen', 'Awol Shiferaw', 'Getaneh Deml', 'Temesgen Alem',
-                'Werkagegnehu Shewaye', 'Kefialew Wedaje', 'Tesfanew Gizte', 'Wale Andualem'
-            ],
-            'Fabrication Shop': [
-                'Abdela Endeshaw', 'Genet Siltan', 'Gojam Adamu', 'Astray Tsiga',
-                'Abayneh Tadese', 'Birhanu Kindu', 'Temesgen Nibret', 'Abrham Ayana',
-                'Getachew'
-            ],
-            'Forging & Heat Treat': ['H/Eyesus Abeje', 'Shumye Guadu'],
-            'Welding Shop': [
-                'Abebaw Ager', 'Wubit Abera', 'Mesafint Afewerk', 'Belachew Tesfahun',
-                'Chalachew Amogne', 'Amlakie Semani', 'Adebabay Tawuneh', 'Yenatfanta Kassa',
-                'Amelmal Delelew', 'Netsanet Bazezew', 'Samrawit Mekonnen', 'Misganaw Tilahun',
-                'Mniyichil Tilahun', 'Molalgn Ayinie', 'Tarekegn Wubu', 'Yaregal Mengesha',
-                'Azmeraw Kebtie', 'Melaku Asimare', 'Yitayew Yilma', 'Bekalu Yaregal',
-                'Agumas Bishaw', 'Salamlak', 'Zerihun Dejen', 'Bekele Kassa',
-                'Birtukan Mola', 'Esey Alebachew', 'Zemenu Mola', 'Belete Siltanu',
-                'Hailye Yismaw', 'Metalgn Getu', 'Firehiwot T/Mariam', 'Zelalem Melkamu',
-                'Ejigu Bogale', 'Andualem Asresaw', 'Nigusu Bogale', 'Smegnew Alem',
-                'Zelalem Aweke', 'Wubshet Abe', 'Wasihun Fente'
-            ],
-            'Polishing': [
-                'Antehunegn Asres', 'Metadel Gietu', 'Agumas Bishaw', 'Mulu Tesfa',
-                'Addisu Koye', 'Demelash', 'Nigusie', 'Yihenew Lakew', 'Minale Yechale'
-            ],
-            'Painting': ['Adisie Ewunetu', 'Adgo Baye', 'Zelalem Getnet', 'Yibeltal Dires', 'Yeshumnesh'],
-            'Assembly': [
-                'Endalew Admasu', 'Zemenu Yohannes', 'Nigatu Dires', 'Yohannes Biazin',
-                'Birhanu Demlew', 'Temesgen Alem', 'Wale Andualem', 'Habtamu Manaye'
-            ]
-        };
+        function getValSel(id) { return document.getElementById(id); }
 
-        // ─── Machines per category ───
-        const MACHINES = {
-            'Machine Shop': [
-                'PH1', 'PH2', 'PH3', 'PH4', 'PH5', 'PH6', 'MDL1', 'MDL2', 'MDL3', 'MDL4',
-                'MDL5', 'MDL6', 'MDL7', 'MDL8', 'MDL9', 'MDL10', 'MDL11', 'CPL1', 'CPL2', 'CPL3',
-                'CPL4', 'CPL5', 'CPL6', 'CPL7', 'CPL8', 'CPL9', 'CPL10', 'CPL11', 'CHDPL1', 'CHDPL2',
-                'DCVTL1', 'DCVTL2', 'CUM1', 'CUM2', 'CUM3', 'CUM4', 'CUM5', 'CUM6', 'CUM7', 'CUM8',
-                'CUM9', 'CUM10', 'VMCM1', 'VMCM2', 'VMCM3', 'VMCM4', 'CNCUM5', 'CNCUM6', 'GH1',
-                'RD1', 'RD2', 'RD3', 'FD1', 'FD2', 'FD3', 'GD1', 'CNCVD1', 'SH1', 'HVS1', 'HVS2',
-                'SG1', 'SG2', 'SG3', 'CEG1', 'CEG2', 'CCIG1', 'CCIG2', 'C5AG1', 'UCG1', 'UCG2',
-                'PG1', 'PG2', 'PG3', 'PG4', 'PG5', 'VH1', 'CDHH1', 'CDHDB1', 'CDHD1', 'EDM1',
-                'EDM2', 'CWCEDM1', 'CWCEDM2'
-            ],
-            'Fabrication Shop': [
-                'MS1', 'MS2', 'MS3', 'PS1', 'PS2', 'PS3', 'PS4', 'FS1', 'FS2', 'FS3',
-                'FS4', 'PG1', 'PG2', 'PG3', 'PG4', 'PG5', 'MB1', 'MB2', 'HB', 'PB1', 'PB2',
-                'R1', 'R2', 'R3', 'R4', 'SM1', 'SM2', 'HDHS1', 'HDHS2', 'HFRPR1', 'HTRPR1',
-                'HSMB1', 'HCSP1', 'HCSP2', 'APB1', 'APFB1', 'CHTP1'
-            ],
-            'Gas Cutting Shop': [
-                'SGC', 'HGC1', 'HGC2', 'CNCGC1', 'CNCGC2', 'CNCGC3', 'MGC', 'PC1',
-                'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'CLC1', 'GTCPMC1', 'ATPHFC1', 'ATPHFC2'
-            ],
-            'Welding Shop': [
-                'AW1', 'AW2', 'AW3', 'AW4', 'AW5', 'AW6', 'AW7', 'AW8', 'AW9', 'AW10',
-                'AW11', 'TW1', 'TW2', 'TW3', 'MW1', 'MW2', 'MW3', 'MW4', 'MW5', 'MW6',
-                'SMW1', 'SMW2', 'SMW3', 'PSW1', 'PSW2'
-            ],
-            'Forging & Heat Treat': [
-                'HFM1', 'HFM2', 'PnFM1', 'PnFM2', 'PnFM3', 'HTM1', 'HTM2',
-                'HPM2000-1', 'HPM2000-2', 'HPM2000-3', 'HPM2000-4', 'HPM2000-5', 'HPM2000-6',
-                'HPM5000-1', 'HPM5000-2', 'HPM5000-3'
-            ]
-        };
-
-        // ─── Projects (with realistic planned/actual data) ───
-        const PROJECTS = [
-            { id: 'P1', name: 'Axle Housing', category: 'Customer', planned: 85, actual: 72, perf: 85 },
-            { id: 'P2', name: 'Gear Box', category: 'Customer', planned: 60, actual: 54, perf: 90 },
-            { id: 'P3', name: 'Flange Coupling', category: 'Customer', planned: 120, actual: 98, perf: 82 },
-            { id: 'P4', name: 'Pump Body', category: 'Customer', planned: 45, actual: 38, perf: 84 },
-            { id: 'P5', name: 'Valve Stem', category: 'Customer', planned: 200, actual: 175, perf: 88 },
-            { id: 'P6', name: 'Cylinder Head', category: 'Customer', planned: 30, actual: 22, perf: 73 },
-            { id: 'P7', name: 'Hydraulic Manifold', category: 'Customer', planned: 75, actual: 68, perf: 91 },
-            { id: 'P8', name: 'Spindle Shaft', category: 'Customer', planned: 90, actual: 76, perf: 84 },
-            { id: 'P9', name: 'Bearing Housing', category: 'Customer', planned: 55, actual: 49, perf: 89 },
-            { id: 'P10', name: 'Custom Gear', category: 'Our Own Service', planned: 40, actual: 36, perf: 90 },
-            { id: 'P11', name: 'Tool Post', category: 'Our Own Service', planned: 25, actual: 20, perf: 80 },
-            { id: 'P12', name: 'Fixture Base', category: 'Our Own Service', planned: 35, actual: 28, perf: 80 },
-            { id: 'P13', name: 'Hydraulic Cylinder', category: 'Customer', planned: 50, actual: 42, perf: 84 },
-            { id: 'P14', name: 'Drive Shaft', category: 'Customer', planned: 70, actual: 61, perf: 87 },
-            { id: 'P15', name: 'Mounting Bracket', category: 'Our Own Service', planned: 110, actual: 95, perf: 86 },
-            { id: 'P16', name: 'Pump Impeller', category: 'Customer', planned: 65, actual: 52, perf: 80 },
-            { id: 'P17', name: 'Valve Body', category: 'Customer', planned: 80, actual: 72, perf: 90 },
-            { id: 'P18', name: 'Gear Rack', category: 'Our Own Service', planned: 45, actual: 38, perf: 84 },
-        ];
-
-        // ─── Assembly parts with realistic progress ───
-        const ASSEMBLY_PARTS = [
-            { name: 'Gearbox Housing', asm: 88, pol: 76, pnt: 72 },
-            { name: 'Pump Casing', asm: 95, pol: 82, pnt: 79 },
-            { name: 'Valve Body', asm: 70, pol: 65, pnt: 60 },
-            { name: 'Flange Assembly', asm: 92, pol: 88, pnt: 84 },
-            { name: 'Cylinder Head', asm: 78, pol: 70, pnt: 66 },
-            { name: 'Hydraulic Manifold', asm: 85, pol: 80, pnt: 77 },
-            { name: 'Spindle Shaft', asm: 90, pol: 85, pnt: 82 },
-            { name: 'Bearing Housing', asm: 82, pol: 74, pnt: 70 },
-        ];
-
-        // ─── Reasons / Issues (realistic) ───
-        const REASONS = [
-            { problem: 'Lack of raw material (Steel Grade 4140)', cause: 'Supplier delay', impact: 'High',
-                solution: 'Expedite PO from alternate supplier; safety stock 2 weeks' },
-            { problem: 'Cutter breakage on CNC Lathe #3', cause: 'Tool wear / wrong feed rate', impact: 'Medium',
-                solution: 'Update tooling schedule; operator training on feeds' },
-            { problem: 'Machine breakdown – PH6 spindle failure', cause: 'Bearing fatigue', impact: 'High',
-                solution: 'Overhaul scheduled for next weekend; spare bearing ordered' },
-            { problem: 'Design change on Gear Box (P2)', cause: 'Customer request', impact: 'Low',
-                solution: 'Updated BOM; re-train 4 operators on new tolerances' },
-            { problem: 'Operator absenteeism – 3 welders out', cause: 'Sick leave', impact: 'Medium',
-                solution: 'Cross-train 2 fabricators; overtime for remaining welders' },
-            { problem: 'Painting booth ventilation down', cause: 'Motor burned', impact: 'Medium',
-                solution: 'Emergency repair completed; spare motor on order' },
-            { problem: 'Welding electrode shortage (E7018)', cause: 'Inventory miscount', impact: 'High',
-                solution: 'Local procurement arranged; stock audit implemented' },
-        ];
-
-        // ─── Per-shop operator performance (current week) ───
-        // Each shop: [planned_hours, actual_hours, performance%]
-        const SHOP_PERF = {
-            'Machine Shop': [320, 278, 87],
-            'Fabrication Shop': [180, 153, 85],
-            'Forging & Heat Treat': [72, 61, 85],
-            'Welding Shop': [210, 172, 82],
-            'Polishing': [98, 84, 86],
-            'Painting': [68, 58, 85],
-            'Assembly': [112, 98, 88],
-        };
-
-        // ─── Per-machine-category utilization (current week) ───
-        const MACHINE_UTIL = {
-            'Machine Shop': [420, 310, 74],
-            'Fabrication Shop': [260, 195, 75],
-            'Gas Cutting Shop': [160, 112, 70],
-            'Welding Shop': [240, 178, 74],
-            'Forging & Heat Treat': [130, 96, 74],
-        };
-
-        // ─── Next week plans (growth targets) ───
-        const NEXT_WEEK_GROWTH = {
-            'Machine Shop': 12,
-            'Fabrication Shop': 10,
-            'Forging & Heat Treat': 8,
-            'Welding Shop': 9,
-            'Polishing': 10,
-            'Painting': 8,
-            'Assembly': 12,
-        };
-
-        // ─── Project next-week targets ───
-        const PROJECT_NEXT = PROJECTS.map(p => {
-            const growth = p.perf >= 90 ? 12 : p.perf >= 85 ? 10 : p.perf >= 80 ? 8 : 6;
-            const next = Math.round(p.planned * (1 + growth / 100));
-            return { ...p, nextPlan: next, growthPct: growth };
-        });
-
-        // ─── Assembly next-week targets ───
-        const ASSEMBLY_NEXT = ASSEMBLY_PARTS.map(p => ({
-            ...p,
-            asmNext: Math.min(100, p.asm + 8),
-            polNext: Math.min(100, p.pol + 7),
-            pntNext: Math.min(100, p.pnt + 6),
-        }));
-
-        // ─── Helper: delay reason distribution ───
-        const DELAY_REASONS = [
-            '—', 'Sick leave', 'Material shortage', 'Tool breakage',
-            'Machine breakdown', 'Design change', 'Permission',
-            'Power outage', 'Quality rework'
-        ];
-
-        function getDelayReason(perf) {
-            if (perf >= 90) return '—';
-            if (perf >= 80) return Math.random() < 0.3 ? DELAY_REASONS[Math.floor(Math.random() * 4) + 1] : '—';
-            return DELAY_REASONS[Math.floor(Math.random() * 7) + 1];
-        }
-
-        // ─── Helper: get shop ops ───
-        function getShopOps(shop) { return OPERATORS[shop] || []; }
-
-        // ─── Helper: get machine list ───
-        function getMachines(cat) { return MACHINES[cat] || []; }
-
-        // ─── Helper: overall stats ───
-        function getTotalOps() { return Object.values(OPERATORS).reduce((s, a) => s + a.length, 0); }
-
-        function getTotalMachines() { return Object.values(MACHINES).reduce((s, a) => s + a.length, 0); }
-
-        // ════════════════════════════════════════════════════════════
-        //  2.  RENDER FUNCTIONS  (each tab)
-        // ════════════════════════════════════════════════════════════
-
-        // ─── Operator Report (current week) ───
-        function renderOperatorReport() {
-            let html = `<div class="card"><h3><i class="fas fa-user-cog"></i> Operator Report · Current Week <span class="subtitle">07–13/09/17</span></h3>`;
-            for (const shop of SHOPS) {
-                const ops = getShopOps(shop);
-                if (!ops.length) continue;
-                const perf = SHOP_PERF[shop] || [0, 0, 0];
-                const color = perf[2] >= 85 ? 'badge-green' : perf[2] >= 75 ? 'badge-yellow' : 'badge-red';
-                html += `<div style="margin-top:16px;">
-                            <div class="flex-between" style="margin-bottom:4px;">
-                                <strong style="font-size:0.95rem;color:#0b2a4a;">${shop}</strong>
-                                <span><span class="badge ${color}">${perf[2]}%</span> · ${perf[0]}h planned · ${perf[1]}h actual</span>
-                                <span class="text-muted">${ops.length} operators</span>
-                            </div>
-                            <div class="table-wrap">
-                            <table>
-                            <thead><tr><th>Operator</th><th>Part</th><th>Planned Qty</th><th>Actual Qty</th><th>Perf %</th><th>Delay Reason</th></tr></thead><tbody>`;
-                // Show all operators for this shop with realistic data
-                for (const op of ops) {
-                    const base = perf[2] + (Math.random() * 14 - 7);
-                    const p = Math.min(100, Math.max(55, Math.round(base)));
-                    const plannedQty = Math.round(15 + Math.random() * 40);
-                    const actualQty = Math.round(plannedQty * (p / 100));
-                    const perfVal = Math.round((actualQty / plannedQty) * 100);
-                    const color2 = perfVal >= 90 ? 'badge-green' : perfVal >= 75 ? 'badge-yellow' : 'badge-red';
-                    const reason = getDelayReason(perfVal);
-                    const parts = ['Axle Housing', 'Gear Box', 'Flange', 'Pump Body', 'Valve Stem', 'Cylinder Head',
-                        'Manifold', 'Spindle', 'Bearing', 'Custom Gear'
-                    ];
-                    const part = parts[Math.floor(Math.random() * parts.length)];
-                    html += `<tr><td><strong>${op}</strong></td>
-                                <td>${part}</td>
-                                <td>${plannedQty}</td>
-                                <td>${actualQty}</td>
-                                <td><span class="badge ${color2}">${perfVal}%</span></td>
-                                <td>${reason !== '—' ? `<span class="badge badge-blue">${reason}</span>` : '—'}</td>
-                            </tr>`;
-                }
-                html += `</tbody></table></div></div>`;
-            }
-
-            // Summary bar
-            html += `<div class="shop-summary" style="margin-top:18px;">
-                        <span><span class="dot dot-green"></span> ≥85% · On Track</span>
-                        <span><span class="dot dot-yellow"></span> 75–84% · Caution</span>
-                        <span><span class="dot dot-red"></span> &lt;75% · Needs Attention</span>
-                        <span style="margin-left:auto;"><i class="fas fa-users"></i> Total: ${getTotalOps()} operators</span>
-                    </div>`;
-            html += `</div>`;
-            return html;
-        }
-
-        // ─── Project Report (current week) ───
-        function renderProjectReport() {
-            let html = `<div class="card"><h3><i class="fas fa-project-diagram"></i> Project Report · Current Week <span class="subtitle">07–13/09/17</span></h3>
-                        <div class="table-wrap">
-                        <table>
-                        <thead><tr><th>Project</th><th>Category</th><th>Planned Qty</th><th>Actual Qty</th><th>Perf %</th><th>Status</th></tr></thead><tbody>`;
-            for (const p of PROJECTS) {
-                const color = p.perf >= 90 ? 'badge-green' : p.perf >= 80 ? 'badge-yellow' : 'badge-red';
-                const status = p.perf >= 90 ? '✅ On Track' : p.perf >= 80 ? '⚠️ Behind' : '❌ Delayed';
-                html += `<tr><td><strong>${p.name}</strong></td>
-                            <td>${p.category}</td><td>${p.planned}</td><td>${p.actual}</td>
-                            <td><span class="badge ${color}">${p.perf}%</span></td>
-                            <td>${status}</td></tr>`;
-            }
-            html += `</tbody></table></div>
-                        <div style="margin-top:18px;height:150px;"><canvas id="projectChartCurrent"></canvas></div>
-                        <div class="highlight-box" style="margin-top:10px;">
-                            <strong>📊 Summary:</strong> ${PROJECTS.filter(p=>p.perf>=90).length} projects on track,
-                            ${PROJECTS.filter(p=>p.perf>=80 && p.perf<90).length} need attention,
-                            ${PROJECTS.filter(p=>p.perf<80).length} delayed.
-                            Overall project performance: <strong>${Math.round(PROJECTS.reduce((s,p)=>s+p.perf,0)/PROJECTS.length)}%</strong>
+        function showToast(message, type = 'success') {
+            const container = document.querySelector('.toast-container');
+            const bg = type === 'success' ? 'bg-success' : type === 'danger' ? 'bg-danger' : 'bg-warning';
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'danger' ? 'fa-exclamation-circle' :
+                'fa-info-circle';
+            const html = `
+                    <div class="toast align-items-center text-white ${bg} border-0 show" role="alert">
+                        <div class="d-flex">
+                            <div class="toast-body"><i class="fas ${icon} me-2"></i> ${message}</div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
                         </div>
-                        </div>`;
-            return html;
-        }
-
-        // ─── Machine Report (current week) ───
-        function renderMachineReport() {
-            let html = `<div class="card"><h3><i class="fas fa-microchip"></i> Machine Report · Current Week <span class="subtitle">07–13/09/17</span></h3>`;
-            for (const [cat, codes] of Object.entries(MACHINES)) {
-                const util = MACHINE_UTIL[cat] || [0, 0, 0];
-                const color = util[2] >= 75 ? 'badge-green' : util[2] >= 65 ? 'badge-yellow' : 'badge-red';
-                html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">
-                            <span><strong>${cat}</strong> <span class="text-muted">(${codes.length} machines)</span></span>
-                            <span>${util[0]}h planned · ${util[1]}h actual</span>
-                            <span><span class="badge ${color}">${util[2]}%</span></span>
-                        </div>`;
-            }
-            // Utilization summary
-            const allUtils = Object.values(MACHINE_UTIL);
-            const avgUtil = Math.round(allUtils.reduce((s, u) => s + u[2], 0) / allUtils.length);
-            html += `<div class="shop-summary" style="margin-top:14px;">
-                        <span><i class="fas fa-chart-line"></i> Average Utilization: <strong>${avgUtil}%</strong></span>
-                        <span><span class="dot dot-green"></span> ≥75% · Good</span>
-                        <span><span class="dot dot-yellow"></span> 65–74% · Moderate</span>
-                        <span><span class="dot dot-red"></span> &lt;65% · Low</span>
-                        <span style="margin-left:auto;"><i class="fas fa-cogs"></i> Total: ${getTotalMachines()} machines</span>
-                    </div>`;
-            html += `</div>`;
-            return html;
-        }
-
-        // ─── Assembly Report ───
-        function renderAssemblyReport() {
-            let html = `<div class="card"><h3><i class="fas fa-tools"></i> Assembly Report · Current Week <span class="subtitle">07–13/09/17</span></h3>
-                        <div class="table-wrap">
-                        <table>
-                        <thead><tr><th>Part</th><th>Assembling</th><th>Polishing</th><th>Painting</th><th>Avg Progress</th><th>Status</th></tr></thead><tbody>`;
-            for (const p of ASSEMBLY_PARTS) {
-                const avg = Math.round((p.asm + p.pol + p.pnt) / 3);
-                const color = avg >= 85 ? 'badge-green' : avg >= 70 ? 'badge-yellow' : 'badge-red';
-                const label = avg >= 85 ? 'Complete' : avg >= 70 ? 'In Progress' : 'Behind';
-                html += `<tr><td><strong>${p.name}</strong></td>
-                            <td>${p.asm}%</td><td>${p.pol}%</td><td>${p.pnt}%</td>
-                            <td><strong>${avg}%</strong></td>
-                            <td><span class="badge ${color}">${label}</span></td></tr>`;
-            }
-            html += `</tbody></table></div>
-                        <div class="highlight-box" style="margin-top:10px;">
-                            <strong>🔧 Assembly Status:</strong>
-                            ${ASSEMBLY_PARTS.filter(p => (p.asm+p.pol+p.pnt)/3 >= 85).length} parts completed,
-                            ${ASSEMBLY_PARTS.filter(p => (p.asm+p.pol+p.pnt)/3 >= 70 && (p.asm+p.pol+p.pnt)/3 < 85).length} in progress,
-                            ${ASSEMBLY_PARTS.filter(p => (p.asm+p.pol+p.pnt)/3 < 70).length} behind schedule.
-                            Overall assembly progress: <strong>${Math.round(ASSEMBLY_PARTS.reduce((s,p)=>(s+(p.asm+p.pol+p.pnt)/3),0)/ASSEMBLY_PARTS.length)}%</strong>
-                        </div>
-                        </div>`;
-            return html;
-        }
-
-        // ─── Reasons ───
-        function renderReason() {
-            let html = `<div class="card"><h3><i class="fas fa-exclamation-triangle"></i> Problems · Impact · Solutions <span class="subtitle">07–13/09/17</span></h3>
-                        <div class="table-wrap">
-                        <table>
-                        <thead><tr><th>Problem</th><th>Root Cause</th><th>Impact</th><th>Solution</th><th>Status</th></tr></thead><tbody>`;
-            const statuses = ['In Progress', 'Resolved', 'In Progress', 'Open', 'In Progress', 'Resolved', 'Open'];
-            for (let i = 0; i < REASONS.length; i++) {
-                const r = REASONS[i];
-                const badge = r.impact === 'High' ? 'badge-red' : r.impact === 'Medium' ? 'badge-yellow' : 'badge-blue';
-                const statusColor = statuses[i] === 'Resolved' ? 'badge-green' : statuses[i] === 'In Progress' ?
-                    'badge-yellow' : 'badge-red';
-                html += `<tr><td><strong>${r.problem}</strong></td>
-                            <td>${r.cause}</td>
-                            <td><span class="badge ${badge}">${r.impact}</span></td>
-                            <td>${r.solution}</td>
-                            <td><span class="badge ${statusColor}">${statuses[i]}</span></td></tr>`;
-            }
-            html += `</tbody></table></div>
-                        <div class="highlight-box" style="margin-top:10px;">
-                            <strong>⚠️ Issue Summary:</strong>
-                            ${REASONS.filter((_,i)=>statuses[i]==='Resolved').length} resolved,
-                            ${REASONS.filter((_,i)=>statuses[i]==='In Progress').length} in progress,
-                            ${REASONS.filter((_,i)=>statuses[i]==='Open').length} open.
-                            High-impact issues: ${REASONS.filter(r=>r.impact==='High').length}
-                        </div>
-                        </div>`;
-            return html;
-        }
-
-        // ─── Operator PLAN (next week) ───
-        function renderOperatorPlan() {
-            let html = `<div class="card" style="border-left:4px solid #facc15;"><h3><i class="fas fa-calendar-plus" style="color:#facc15;"></i> Operator Plan · Next Week <span class="subtitle">14–20/09/17</span></h3>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">`;
-            for (const shop of SHOPS) {
-                const ops = getShopOps(shop);
-                if (!ops.length) continue;
-                const current = SHOP_PERF[shop] || [0, 0, 0];
-                const growth = NEXT_WEEK_GROWTH[shop] || 10;
-                const targetHours = Math.round(current[0] * (1 + growth / 100));
-                const targetActual = Math.round(current[1] * (1 + growth / 100));
-                const color = growth >= 10 ? 'badge-green' : 'badge-yellow';
-                html += `<div style="background:#f8fafc;border-radius:12px;padding:14px 16px;border:1px solid #edf2f7;">
-                            <div class="flex-between">
-                                <strong style="color:#0b2a4a;">${shop}</strong>
-                                <span class="badge ${color}">+${growth}%</span>
-                            </div>
-                            <span class="text-muted">${ops.length} operators</span>
-                            <div style="margin-top:10px;font-size:0.78rem;">
-                                <div class="compare-bar"><span class="label">Current</span><div class="track"><div class="fill-plan" style="width:${Math.min(100,current[0]/4)}%;"></div></div><span class="pct">${current[0]}h</span></div>
-                                <div class="compare-bar"><span class="label">Target</span><div class="track"><div class="fill-actual" style="width:${Math.min(100,targetHours/4)}%;"></div></div><span class="pct">${targetHours}h</span></div>
-                                <div class="text-muted" style="margin-top:4px;">⬆ ${growth}% increase · expected perf: ${Math.min(95,current[2]+3)}%</div>
-                            </div>
-                        </div>`;
-            }
-            html += `</div>
-                        <div class="highlight-box" style="margin-top:14px;">
-                            <strong>📈 Plan Overview:</strong> Next week targets set at <strong>+${Math.round(Object.values(NEXT_WEEK_GROWTH).reduce((a,b)=>a+b,0)/Object.values(NEXT_WEEK_GROWTH).length)}%</strong> average growth.
-                            Based on current performance, we expect to achieve <strong>86%</strong> overall efficiency.
-                        </div>
-                        </div>`;
-            return html;
-        }
-
-        // ─── Project PLAN ───
-        function renderProjectPlan() {
-            let html = `<div class="card" style="border-left:4px solid #facc15;"><h3><i class="fas fa-calendar-plus" style="color:#facc15;"></i> Project Plan · Next Week <span class="subtitle">14–20/09/17</span></h3>
-                        <div class="table-wrap">
-                        <table>
-                        <thead><tr><th>Project</th><th>Category</th><th>Current</th><th>Next Week Plan</th><th>Growth</th><th>Target Status</th></tr></thead><tbody>`;
-            for (const p of PROJECT_NEXT) {
-                const color = p.growthPct >= 10 ? 'badge-green' : p.growthPct >= 7 ? 'badge-yellow' : 'badge-red';
-                const status = p.growthPct >= 10 ? '🚀 Aggressive' : p.growthPct >= 7 ? '📈 Steady' : '🐢 Conservative';
-                html += `<tr><td><strong>${p.name}</strong></td>
-                            <td>${p.category}</td><td>${p.planned}</td><td>${p.nextPlan}</td>
-                            <td><span class="badge ${color}">+${p.growthPct}%</span></td>
-                            <td>${status}</td></tr>`;
-            }
-            html += `</tbody></table></div>
-                        <div style="margin-top:18px;height:140px;"><canvas id="projectPlanChart"></canvas></div>
-                        <div class="highlight-box" style="margin-top:10px;">
-                            <strong>📊 Project Plan:</strong> Total planned output next week: <strong>${PROJECT_NEXT.reduce((s,p)=>s+p.nextPlan,0)}</strong>
-                            units (vs ${PROJECTS.reduce((s,p)=>s+p.planned,0)} this week). Average growth: <strong>${Math.round(PROJECT_NEXT.reduce((s,p)=>s+p.growthPct,0)/PROJECT_NEXT.length)}%</strong>
-                        </div>
-                        </div>`;
-            return html;
-        }
-
-        // ─── Machine PLAN ───
-        function renderMachinePlan() {
-            let html = `<div class="card" style="border-left:4px solid #facc15;"><h3><i class="fas fa-calendar-plus" style="color:#facc15;"></i> Machine Plan · Next Week <span class="subtitle">14–20/09/17</span></h3>`;
-            for (const [cat, codes] of Object.entries(MACHINES)) {
-                const current = MACHINE_UTIL[cat] || [0, 0, 0];
-                const growth = cat === 'Machine Shop' ? 12 : cat === 'Fabrication Shop' ? 10 : cat === 'Welding Shop' ? 8 :
-                    cat === 'Gas Cutting Shop' ? 7 : 8;
-                const plannedHours = Math.round(current[0] * (1 + growth / 100));
-                const targetUtil = Math.min(85, Math.round(current[2] + 4 + Math.random() * 4));
-                const color = targetUtil >= 78 ? 'badge-green' : targetUtil >= 68 ? 'badge-yellow' : 'badge-red';
-                html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">
-                            <span><strong>${cat}</strong> <span class="text-muted">(${codes.length} machines)</span></span>
-                            <span>${current[0]}h → ${plannedHours}h planned</span>
-                            <span><span class="badge ${color}">${targetUtil}% target</span></span>
-                            <span class="text-muted">+${growth}%</span>
-                        </div>`;
-            }
-            const avgTarget = Math.round(Object.keys(MACHINES).reduce((s, cat) => {
-                const g = cat === 'Machine Shop' ? 12 : cat === 'Fabrication Shop' ? 10 : cat === 'Welding Shop' ? 8 :
-                    cat === 'Gas Cutting Shop' ? 7 : 8;
-                return s + g;
-            }, 0) / Object.keys(MACHINES).length);
-            html += `<div class="highlight-box" style="margin-top:14px;">
-                        <strong>⚙️ Machine Plan:</strong> Average planned utilization increase: <strong>+${avgTarget}%</strong>.
-                        Target overall utilization: <strong>76%</strong>. Scheduled maintenance for PH6 and AW3 during weekend.
-                    </div>`;
-            html += `</div>`;
-            return html;
-        }
-
-        // ─── Assembly PLAN ───
-        function renderAssemblyPlan() {
-            let html = `<div class="card" style="border-left:4px solid #facc15;"><h3><i class="fas fa-calendar-plus" style="color:#facc15;"></i> Assembly Plan · Next Week <span class="subtitle">14–20/09/17</span></h3>
-                        <div class="table-wrap">
-                        <table>
-                        <thead><tr><th>Part</th><th>Current Avg</th><th>Plan (Assembling)</th><th>Plan (Polishing)</th><th>Plan (Painting)</th><th>Target Avg</th><th>Status</th></tr></thead><tbody>`;
-            for (const p of ASSEMBLY_NEXT) {
-                const avg = Math.round((p.asm + p.pol + p.pnt) / 3);
-                const avgNext = Math.round((p.asmNext + p.polNext + p.pntNext) / 3);
-                const color = avgNext >= 85 ? 'badge-green' : avgNext >= 70 ? 'badge-yellow' : 'badge-red';
-                const status = avgNext >= 85 ? '✅ On Track' : avgNext >= 70 ? '⚠️ Behind' : '❌ Delayed';
-                html += `<tr><td><strong>${p.name}</strong></td>
-                            <td>${avg}%</td><td>${p.asmNext}%</td><td>${p.polNext}%</td><td>${p.pntNext}%</td>
-                            <td><strong>${avgNext}%</strong></td>
-                            <td><span class="badge ${color}">${status}</span></td></tr>`;
-            }
-            html += `</tbody></table></div>
-                        <div class="highlight-box" style="margin-top:10px;">
-                            <strong>🔧 Assembly Plan:</strong> Target average completion: <strong>${Math.round(ASSEMBLY_NEXT.reduce((s,p)=>(s+(p.asmNext+p.polNext+p.pntNext)/3),0)/ASSEMBLY_NEXT.length)}%</strong>.
-                            Focus areas: Valve Body (+10% target) and Cylinder Head (+9% target).
-                        </div>
-                        </div>`;
-            return html;
-        }
-
-        // ════════════════════════════════════════════════════════════
-        //  3.  NAVIGATION & RENDER
-        // ════════════════════════════════════════════════════════════
-
-        const contentEl = document.getElementById('sheetContent');
-        const tabs = document.querySelectorAll('.sheet-tab');
-
-        const renderMap = {
-            'op-report': renderOperatorReport,
-            'project-report': renderProjectReport,
-            'machine-report': renderMachineReport,
-            'assembly-report': renderAssemblyReport,
-            'reason': renderReason,
-            'op-plan': renderOperatorPlan,
-            'project-plan': renderProjectPlan,
-            'machine-plan': renderMachinePlan,
-            'assembly-plan': renderAssemblyPlan,
-        };
-
-        let chartInstances = [];
-
-        function destroyCharts() {
-            chartInstances.forEach(c => c.destroy());
-            chartInstances = [];
-        }
-
-        function renderSheet(sheet) {
-            tabs.forEach(t => t.classList.remove('active'));
-            document.querySelector(`.sheet-tab[data-sheet="${sheet}"]`)?.classList.add('active');
-
-            const fn = renderMap[sheet] || renderOperatorReport;
-            contentEl.innerHTML = fn();
-
-            // ─── Draw charts ───
+                    </div>
+                `;
+            container.insertAdjacentHTML('beforeend', html);
             setTimeout(() => {
-                destroyCharts();
-
-                // Project Report chart (current)
-                const ctx1 = document.getElementById('projectChartCurrent');
-                if (ctx1) {
-                    const labels = PROJECTS.slice(0, 12).map(p => p.name.slice(0, 10));
-                    const planned = PROJECTS.slice(0, 12).map(p => p.planned);
-                    const actual = PROJECTS.slice(0, 12).map(p => p.actual);
-                    const c = new Chart(ctx1, {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: [
-                                { label: 'Planned', data: planned, backgroundColor: 'rgba(37,99,235,0.65)',
-                                    borderRadius: 4 },
-                                { label: 'Actual', data: actual, backgroundColor: 'rgba(16,185,129,0.65)',
-                                    borderRadius: 4 }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10 } } } },
-                            scales: { y: { beginAtZero: true, grid: { display: false } },
-                            x: { grid: { display: false } } }
-                        }
-                    });
-                    chartInstances.push(c);
-                }
-
-                // Project Plan chart
-                const ctx2 = document.getElementById('projectPlanChart');
-                if (ctx2) {
-                    const labels = PROJECT_NEXT.slice(0, 12).map(p => p.name.slice(0, 10));
-                    const current = PROJECT_NEXT.slice(0, 12).map(p => p.planned);
-                    const nextPlan = PROJECT_NEXT.slice(0, 12).map(p => p.nextPlan);
-                    const c = new Chart(ctx2, {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: [
-                                { label: 'Current', data: current, backgroundColor: 'rgba(100,116,139,0.5)',
-                                    borderRadius: 4 },
-                                { label: 'Next Week', data: nextPlan, backgroundColor: 'rgba(250,204,21,0.7)',
-                                    borderRadius: 4 }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10 } } } },
-                            scales: { y: { beginAtZero: true, grid: { display: false } },
-                            x: { grid: { display: false } } }
-                        }
-                    });
-                    chartInstances.push(c);
-                }
-            }, 80);
+                const toasts = container.querySelectorAll('.toast');
+                if (toasts.length) toasts[0].remove();
+            }, 5000);
         }
 
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                renderSheet(tab.dataset.sheet);
-            });
+        function apiFetch(endpoint, opts = {}) {
+            return fetch(`${API_BASE}${endpoint}`, {
+                ...opts,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(opts.headers || {}),
+                },
+            }).then(r => r.json());
+        }
+
+        // ─── GENERIC RENDER HELPERS ──────────────────────────────────────
+        function renderTable(tbodyId, data, rowFn) {
+            const tbody = getVal(tbodyId);
+            if (!tbody) return;
+            if (!data || data.length === 0) {
+                tbody.innerHTML =
+                    `<tr><td colspan="20" class="text-center text-muted py-3">No records found</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map(rowFn).join('');
+        }
+
+        function updateCount(elementId, data) {
+            const el = getVal(elementId);
+            if (el) el.textContent = (data && data.length) ? `${data.length} records` : '0 records';
+        }
+
+        // ─── SHOPS ──────────────────────────────────────────────────────
+        async function loadShops() {
+            const res = await apiFetch('/shops');
+            renderTable('tbody-shops', res, s => `
+                    <tr>
+                        <td>${s.shop_id}</td>
+                        <td>${esc(s.shop_name)}</td>
+                        <td>${esc(s.shop_type)}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editShop(${s.shop_id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deleteShop(${s.shop_id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            updateCount('shop-count', res);
+            // populate dropdowns
+            populateSelect('form-operators [name="shop_id"]', res, 'shop_id', 'shop_name');
+            populateSelect('form-machines [name="shop_id"]', res, 'shop_id', 'shop_name');
+            populateSelect('form-prod [name="shop_id"]', res, 'shop_id', 'shop_name');
+        }
+
+        document.getElementById('form-shops').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            const res = await apiFetch('/shops', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Shop created successfully');
+            e.target.reset();
+            loadShops();
         });
 
-        // ─── Initial render ───
-        renderSheet('op-report');
+        window.deleteShop = async (id) => {
+            if (!confirm('Delete this shop?')) return;
+            const res = await apiFetch(`/shops/${id}`, { method: 'DELETE' });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Shop deleted');
+            loadShops();
+        };
 
-        // ─── Stats (fixed, controlled by engineer) ───
-        function updateStats() {
-            const totalOps = getTotalOps();
-            const totalMachines = getTotalMachines();
-            const totalProjects = PROJECTS.length;
-            const overallPerf = Math.round(PROJECTS.reduce((s, p) => s + p.perf, 0) / PROJECTS.length);
-            const avgUtil = Math.round(Object.values(MACHINE_UTIL).reduce((s, u) => s + u[2], 0) / Object.values(MACHINE_UTIL)
-            .length);
-            const planCov = 92;
+        window.editShop = async (id) => {
+            const name = prompt('Enter new shop name:');
+            if (name === null) return;
+            const type = prompt('Enter new shop type (or leave blank):');
+            const res = await apiFetch(`/shops/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ shop_name: name, shop_type: type || '' })
+            });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Shop updated');
+            loadShops();
+        };
 
-            document.getElementById('totalOps').textContent = totalOps;
-            document.getElementById('totalMachines').textContent = totalMachines;
-            document.getElementById('totalProjects').textContent = totalProjects;
-            document.getElementById('overallPerf').textContent = overallPerf + '%';
-            document.getElementById('machineUtil').textContent = avgUtil + '%';
-            document.getElementById('planCoverage').textContent = planCov + '%';
+        // ─── OPERATORS ──────────────────────────────────────────────────
+        async function loadOperators() {
+            const res = await apiFetch('/operators');
+            renderTable('tbody-operators', res, o => `
+                    <tr>
+                        <td>${o.operator_id}</td>
+                        <td>${esc(o.full_name)}</td>
+                        <td>${esc(o.shop_name || o.shop_id)}</td>
+                        <td>${o.is_active ? '✅' : '❌'}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editOperator(${o.operator_id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deleteOperator(${o.operator_id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            updateCount('operator-count', res);
+            populateSelect('form-prod [name="operator_id"]', res, 'operator_id', 'full_name');
         }
-        updateStats();
 
-        console.log('🏭 Bahir-Dar Factory Dashboard loaded.');
-        console.log('📊 Data controlled by Control Engineer – all figures realistic and consistent.');
-        console.log('📦', getTotalOps(), 'operators,', getTotalMachines(), 'machines,', PROJECTS.length, 'projects');
+        document.getElementById('form-operators').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.is_active = data.is_active === 'true';
+            const res = await apiFetch('/operators', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Operator created');
+            e.target.reset();
+            loadOperators();
+        });
+
+        window.deleteOperator = async (id) => {
+            if (!confirm('Delete this operator?')) return;
+            const res = await apiFetch(`/operators/${id}`, { method: 'DELETE' });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Operator deleted');
+            loadOperators();
+        };
+
+        window.editOperator = async (id) => {
+            const name = prompt('Enter new full name:');
+            if (name === null) return;
+            const active = confirm('Is this operator active? (OK = active, Cancel = inactive)');
+            const res = await apiFetch(`/operators/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ full_name: name, is_active: active })
+            });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Operator updated');
+            loadOperators();
+        };
+
+        // ─── MACHINES ──────────────────────────────────────────────────
+        async function loadMachines() {
+            const res = await apiFetch('/machines');
+            renderTable('tbody-machines', res, m => `
+                    <tr>
+                        <td>${m.machine_id}</td>
+                        <td>${esc(m.machine_code)}</td>
+                        <td>${esc(m.machine_name)}</td>
+                        <td>${esc(m.shop_name || m.shop_id)}</td>
+                        <td>${esc(m.category)}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editMachine(${m.machine_id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deleteMachine(${m.machine_id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            updateCount('machine-count', res);
+            populateSelect('form-machine-time [name="machine_id"]', res, 'machine_id', 'machine_name');
+        }
+
+        document.getElementById('form-machines').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            const res = await apiFetch('/machines', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Machine created');
+            e.target.reset();
+            loadMachines();
+        });
+
+        window.deleteMachine = async (id) => {
+            if (!confirm('Delete this machine?')) return;
+            const res = await apiFetch(`/machines/${id}`, { method: 'DELETE' });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Machine deleted');
+            loadMachines();
+        };
+
+        window.editMachine = async (id) => {
+            const code = prompt('Enter new machine code:');
+            if (code === null) return;
+            const name = prompt('Enter new machine name:');
+            if (name === null) return;
+            const cat = prompt('Enter new category (or blank):');
+            const res = await apiFetch(`/machines/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ machine_code: code, machine_name: name, category: cat || '' })
+            });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Machine updated');
+            loadMachines();
+        };
+
+        // ─── PROJECTS ──────────────────────────────────────────────────
+        async function loadProjects() {
+            const res = await apiFetch('/projects');
+            renderTable('tbody-projects', res, p => `
+                    <tr>
+                        <td>${p.project_id}</td>
+                        <td>${esc(p.project_name)}</td>
+                        <td>${esc(p.category)}</td>
+                        <td>${p.is_active ? '✅' : '❌'}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editProject(${p.project_id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deleteProject(${p.project_id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            updateCount('project-count', res);
+            populateSelect('form-parts [name="project_id"]', res, 'project_id', 'project_name');
+            populateSelect('form-project-prod [name="project_id"]', res, 'project_id', 'project_name');
+            populateSelect('form-issues [name="affected_project_id"]', res, 'project_id', 'project_name');
+        }
+
+        document.getElementById('form-projects').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.is_active = data.is_active === 'true';
+            const res = await apiFetch('/projects', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Project created');
+            e.target.reset();
+            loadProjects();
+        });
+
+        window.deleteProject = async (id) => {
+            if (!confirm('Delete this project?')) return;
+            const res = await apiFetch(`/projects/${id}`, { method: 'DELETE' });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Project deleted');
+            loadProjects();
+        };
+
+        window.editProject = async (id) => {
+            const name = prompt('Enter new project name:');
+            if (name === null) return;
+            const cat = prompt('Enter new category (or blank):');
+            const active = confirm('Is this project active? (OK = active, Cancel = inactive)');
+            const res = await apiFetch(`/projects/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ project_name: name, category: cat || '', is_active: active })
+            });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Project updated');
+            loadProjects();
+        };
+
+        // ─── PARTS ──────────────────────────────────────────────────────
+        async function loadParts() {
+            const res = await apiFetch('/assembly-parts');
+            renderTable('tbody-parts', res, p => `
+                    <tr>
+                        <td>${p.part_id}</td>
+                        <td>${esc(p.part_name)}</td>
+                        <td>${esc(p.project_name || p.project_id || '—')}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editPart(${p.part_id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deletePart(${p.part_id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            updateCount('part-count', res);
+            populateSelect('form-assembly [name="part_id"]', res, 'part_id', 'part_name');
+        }
+
+        document.getElementById('form-parts').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.project_id = data.project_id ? parseInt(data.project_id) : null;
+            const res = await apiFetch('/assembly-parts', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Part created');
+            e.target.reset();
+            loadParts();
+        });
+
+        window.deletePart = async (id) => {
+            if (!confirm('Delete this part?')) return;
+            const res = await apiFetch(`/assembly-parts/${id}`, { method: 'DELETE' });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Part deleted');
+            loadParts();
+        };
+
+        window.editPart = async (id) => {
+            const name = prompt('Enter new part name:');
+            if (name === null) return;
+            const res = await apiFetch(`/assembly-parts/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ part_name: name })
+            });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Part updated');
+            loadParts();
+        };
+
+        // ─── PRODUCTION RECORDS ──────────────────────────────────────
+        async function loadProdRecords() {
+            const res = await apiFetch('/production-records');
+            renderTable('tbody-prod', res, r => `
+                    <tr>
+                        <td>${r.record_id}</td>
+                        <td>${esc(r.operator_name || r.operator_id)}</td>
+                        <td>${r.week_start} – ${r.week_end}</td>
+                        <td>${r.planned_qty ?? '—'}</td>
+                        <td>${r.actual_qty ?? '—'}</td>
+                        <td>${r.performance_pct ?? '—'}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editProd(${r.record_id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deleteProd(${r.record_id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            updateCount('prod-count', res);
+        }
+
+        document.getElementById('form-prod').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            // convert checkboxes
+            const boolFields = ['lack_materials', 'lack_tool_cutter', 'design_problem', 'machine_breakdown',
+                'machine_sequence_issue', 'over_capacity', 'machine_occupied', 'own_problem'
+            ];
+            boolFields.forEach(f => { data[f] = data[f] === 'true'; });
+            // parse numbers
+            ['planned_qty', 'actual_qty', 'sick_days', 'permission_days'].forEach(f => {
+                if (data[f]) data[f] = parseInt(data[f]);
+            });
+            ['planned_time', 'actual_time', 'performance_pct'].forEach(f => {
+                if (data[f]) data[f] = parseFloat(data[f]);
+            });
+            data.operator_id = parseInt(data.operator_id);
+            data.shop_id = parseInt(data.shop_id);
+            const res = await apiFetch('/production-records', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Production record created');
+            e.target.reset();
+            loadProdRecords();
+        });
+
+        window.deleteProd = async (id) => {
+            if (!confirm('Delete this record?')) return;
+            const res = await apiFetch(`/production-records/${id}`, { method: 'DELETE' });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Record deleted');
+            loadProdRecords();
+        };
+
+        window.editProd = async (id) => {
+            const qty = prompt('Enter new actual qty:');
+            if (qty === null) return;
+            const res = await apiFetch(`/production-records/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ actual_qty: parseInt(qty) })
+            });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Record updated');
+            loadProdRecords();
+        };
+
+        // ─── PROJECT PRODUCTION ──────────────────────────────────────
+        async function loadProjectProd() {
+            const res = await apiFetch('/project-production');
+            renderTable('tbody-project-prod', res, p => `
+                    <tr>
+                        <td>${p.prod_id}</td>
+                        <td>${esc(p.project_name || p.project_id)}</td>
+                        <td>${p.week_start} – ${p.week_end}</td>
+                        <td>${p.planned_qty ?? '—'}</td>
+                        <td>${p.actual_qty ?? '—'}</td>
+                        <td>${p.performance_pct ?? '—'}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editProjectProd(${p.prod_id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deleteProjectProd(${p.prod_id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            updateCount('project-prod-count', res);
+        }
+
+        document.getElementById('form-project-prod').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.project_id = parseInt(data.project_id);
+            ['planned_qty', 'actual_qty', 'upto_date_qty'].forEach(f => { if (data[f]) data[f] = parseInt(data[f]); });
+            ['planned_time', 'actual_time', 'performance_pct', 'overall_perf_pct'].forEach(f => { if (data[f]) data[f] =
+                    parseFloat(data[f]); });
+            const res = await apiFetch('/project-production', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Project production record created');
+            e.target.reset();
+            loadProjectProd();
+        });
+
+        window.deleteProjectProd = async (id) => {
+            if (!confirm('Delete this record?')) return;
+            const res = await apiFetch(`/project-production/${id}`, { method: 'DELETE' });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Record deleted');
+            loadProjectProd();
+        };
+
+        window.editProjectProd = async (id) => {
+            const qty = prompt('Enter new actual qty:');
+            if (qty === null) return;
+            const res = await apiFetch(`/project-production/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ actual_qty: parseInt(qty) })
+            });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Record updated');
+            loadProjectProd();
+        };
+
+        // ─── MACHINE TIME REG ──────────────────────────────────────────
+        async function loadMachineTime() {
+            const res = await apiFetch('/machine-time-reg');
+            renderTable('tbody-machine-time', res, m => `
+                    <tr>
+                        <td>${m.reg_id}</td>
+                        <td>${esc(m.machine_name || m.machine_id)}</td>
+                        <td>${m.week_start} – ${m.week_end}</td>
+                        <td>${m.planned_time ?? '—'}</td>
+                        <td>${m.actual_time ?? '—'}</td>
+                        <td>${m.utilization_pct ?? '—'}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editMachineTime(${m.reg_id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deleteMachineTime(${m.reg_id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            updateCount('machine-time-count', res);
+        }
+
+        document.getElementById('form-machine-time').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.machine_id = parseInt(data.machine_id);
+            ['planned_time', 'actual_time', 'utilization_pct'].forEach(f => { if (data[f]) data[f] = parseFloat(data[
+                f]); });
+            const res = await apiFetch('/machine-time-reg', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Machine time record created');
+            e.target.reset();
+            loadMachineTime();
+        });
+
+        window.deleteMachineTime = async (id) => {
+            if (!confirm('Delete this record?')) return;
+            const res = await apiFetch(`/machine-time-reg/${id}`, { method: 'DELETE' });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Record deleted');
+            loadMachineTime();
+        };
+
+        window.editMachineTime = async (id) => {
+            const util = prompt('Enter new utilization %:');
+            if (util === null) return;
+            const res = await apiFetch(`/machine-time-reg/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ utilization_pct: parseFloat(util) })
+            });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Record updated');
+            loadMachineTime();
+        };
+
+        // ─── ASSEMBLY RECORDS ──────────────────────────────────────────
+        async function loadAssembly() {
+            const res = await apiFetch('/assembly-records');
+            renderTable('tbody-assembly', res, a => `
+                    <tr>
+                        <td>${a.assembly_id}</td>
+                        <td>${esc(a.part_name || a.part_id)}</td>
+                        <td>${a.week_start} – ${a.week_end}</td>
+                        <td>${a.assembling_completed ?? '—'}</td>
+                        <td>${a.polishing_completed ?? '—'}</td>
+                        <td>${a.painting_completed ?? '—'}</td>
+                        <td>${a.performance_pct ?? '—'}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editAssembly(${a.assembly_id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deleteAssembly(${a.assembly_id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            updateCount('assembly-count', res);
+        }
+
+        document.getElementById('form-assembly').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.part_id = parseInt(data.part_id);
+            ['assembling_planned', 'assembling_wip', 'assembling_completed',
+                'polishing_planned', 'polishing_wip', 'polishing_completed',
+                'painting_planned', 'painting_wip', 'painting_completed',
+                'upto_date_qty', 'performance_pct'
+            ].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
+            const res = await apiFetch('/assembly-records', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Assembly record created');
+            e.target.reset();
+            loadAssembly();
+        });
+
+        window.deleteAssembly = async (id) => {
+            if (!confirm('Delete this assembly record?')) return;
+            const res = await apiFetch(`/assembly-records/${id}`, { method: 'DELETE' });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Assembly record deleted');
+            loadAssembly();
+        };
+
+        window.editAssembly = async (id) => {
+            const perf = prompt('Enter new performance %:');
+            if (perf === null) return;
+            const res = await apiFetch(`/assembly-records/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ performance_pct: parseFloat(perf) })
+            });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Assembly record updated');
+            loadAssembly();
+        };
+
+        // ─── ISSUES ──────────────────────────────────────────────────
+        async function loadIssues() {
+            const res = await apiFetch('/issues');
+            renderTable('tbody-issues', res, i => `
+                    <tr>
+                        <td>${i.issue_id}</td>
+                        <td>${i.week_start} – ${i.week_end}</td>
+                        <td>${esc(i.problem)}</td>
+                        <td>${esc(i.root_cause)}</td>
+                        <td>${esc(i.impact_level)}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editIssue(${i.issue_id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deleteIssue(${i.issue_id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            updateCount('issue-count', res);
+        }
+
+        document.getElementById('form-issues').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.affected_project_id = data.affected_project_id ? parseInt(data.affected_project_id) : null;
+            const res = await apiFetch('/issues', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Issue created');
+            e.target.reset();
+            loadIssues();
+        });
+
+        window.deleteIssue = async (id) => {
+            if (!confirm('Delete this issue?')) return;
+            const res = await apiFetch(`/issues/${id}`, { method: 'DELETE' });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Issue deleted');
+            loadIssues();
+        };
+
+        window.editIssue = async (id) => {
+            const sol = prompt('Enter new solution:');
+            if (sol === null) return;
+            const res = await apiFetch(`/issues/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ solution: sol })
+            });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Issue updated');
+            loadIssues();
+        };
+
+        // ─── PLANS ──────────────────────────────────────────────────
+        async function loadPlans() {
+            const res = await apiFetch('/plans');
+            renderTable('tbody-plans', res, p => `
+                    <tr>
+                        <td>${p.plan_id}</td>
+                        <td>${p.week_start} – ${p.week_end}</td>
+                        <td><span class="badge bg-secondary">${esc(p.plan_type)}</span></td>
+                        <td>${p.reference_id}</td>
+                        <td>${p.planned_qty ?? '—'}</td>
+                        <td>${p.target_qty ?? '—'}</td>
+                        <td>${p.growth_pct ?? '—'}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editPlan(${p.plan_id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deletePlan(${p.plan_id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            updateCount('plan-count', res);
+        }
+
+        document.getElementById('form-plans').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.reference_id = parseInt(data.reference_id);
+            ['planned_qty', 'target_qty'].forEach(f => { if (data[f]) data[f] = parseInt(data[f]); });
+            ['planned_time', 'target_time', 'growth_pct'].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
+            const res = await apiFetch('/plans', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Plan created');
+            e.target.reset();
+            loadPlans();
+        });
+
+        window.deletePlan = async (id) => {
+            if (!confirm('Delete this plan?')) return;
+            const res = await apiFetch(`/plans/${id}`, { method: 'DELETE' });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Plan deleted');
+            loadPlans();
+        };
+
+        window.editPlan = async (id) => {
+            const notes = prompt('Enter new notes:');
+            if (notes === null) return;
+            const res = await apiFetch(`/plans/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ notes })
+            });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Plan updated');
+            loadPlans();
+        };
+
+        // ─── HELPERS ──────────────────────────────────────────────────
+        function esc(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function populateSelect(selector, data, valueKey, labelKey) {
+            const sel = document.querySelector(selector);
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">Select…</option>';
+            if (data && data.length) {
+                data.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item[valueKey];
+                    opt.textContent = item[labelKey] || item[valueKey];
+                    sel.appendChild(opt);
+                });
+            }
+            if (current) sel.value = current;
+        }
+
+        // ─── INIT ──────────────────────────────────────────────────
+        async function init() {
+            await loadShops();
+            await loadOperators();
+            await loadMachines();
+            await loadProjects();
+            await loadParts();
+            await loadProdRecords();
+            await loadProjectProd();
+            await loadMachineTime();
+            await loadAssembly();
+            await loadIssues();
+            await loadPlans();
+        }
+
+        // Re-populate dropdowns after each load
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 
 </body>
