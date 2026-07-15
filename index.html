@@ -67,24 +67,25 @@
             padding: 1rem 0;
         }
         .sidebar-nav .nav-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #6a7f9e;
             padding: 0.5rem 1.5rem;
             margin-top: 0.5rem;
+            font-weight: 600;
         }
         .sidebar-nav .nav-item {
             display: flex;
             align-items: center;
-            padding: 0.65rem 1.5rem;
+            padding: 0.6rem 1.5rem;
             color: #b0c4de;
             text-decoration: none;
             cursor: pointer;
             transition: all 0.2s;
             border-left: 3px solid transparent;
             gap: 12px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         .sidebar-nav .nav-item:hover {
             background: rgba(255, 255, 255, 0.06);
@@ -96,9 +97,9 @@
             border-left-color: #4a9eff;
         }
         .sidebar-nav .nav-item i {
-            width: 22px;
+            width: 20px;
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         .sidebar-footer {
             padding: 1rem 1.5rem;
@@ -112,14 +113,14 @@
             align-items: center;
             gap: 12px;
             padding: 0.5rem 0;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: color 0.2s;
         }
         .sidebar-footer .nav-item:hover {
             color: #fff;
         }
         .sidebar-footer .nav-item i {
-            width: 22px;
+            width: 20px;
             text-align: center;
         }
 
@@ -147,7 +148,7 @@
             margin: 0;
         }
         .topbar .breadcrumb {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #6b7a8f;
             background: none;
             padding: 0;
@@ -198,30 +199,12 @@
             font-size: 1.4rem;
             margin-bottom: 0.75rem;
         }
-        .stat-card .stat-icon.blue {
-            background: #e8f0fe;
-            color: #1a73e8;
-        }
-        .stat-card .stat-icon.green {
-            background: #e6f7ed;
-            color: #0b8f4c;
-        }
-        .stat-card .stat-icon.purple {
-            background: #f0ebff;
-            color: #7c3aed;
-        }
-        .stat-card .stat-icon.orange {
-            background: #fef3e2;
-            color: #d97706;
-        }
-        .stat-card .stat-icon.red {
-            background: #fde8e8;
-            color: #dc2626;
-        }
-        .stat-card .stat-icon.teal {
-            background: #e0f7fa;
-            color: #0d9488;
-        }
+        .stat-card .stat-icon.blue { background: #e8f0fe; color: #1a73e8; }
+        .stat-card .stat-icon.green { background: #e6f7ed; color: #0b8f4c; }
+        .stat-card .stat-icon.purple { background: #f0ebff; color: #7c3aed; }
+        .stat-card .stat-icon.orange { background: #fef3e2; color: #d97706; }
+        .stat-card .stat-icon.red { background: #fde8e8; color: #dc2626; }
+        .stat-card .stat-icon.teal { background: #e0f7fa; color: #0d9488; }
         .stat-card .stat-number {
             font-size: 1.8rem;
             font-weight: 700;
@@ -238,30 +221,18 @@
             font-weight: 500;
             margin-top: 0.3rem;
         }
-        .stat-card .stat-change.up {
-            color: #0b8f4c;
-        }
-        .stat-card .stat-change.down {
-            color: #dc2626;
-        }
+        .stat-card .stat-change.up { color: #0b8f4c; }
+        .stat-card .stat-change.down { color: #dc2626; }
 
         /* ─── PANELS ─── */
         .panel {
             display: none;
             animation: fadeIn 0.3s ease;
         }
-        .panel.active {
-            display: block;
-        }
+        .panel.active { display: block; }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .panel .card {
@@ -279,9 +250,7 @@
             padding: 1rem 1.25rem;
             border-radius: 16px 16px 0 0 !important;
         }
-        .panel .card-body {
-            padding: 1.25rem;
-        }
+        .panel .card-body { padding: 1.25rem; }
         .panel .form-section {
             background: #fafcff;
             padding: 1.2rem 1.5rem;
@@ -298,9 +267,7 @@
             background: #f8faff;
             border-bottom: 2px solid #dee2e6;
         }
-        .panel .table td {
-            vertical-align: middle;
-        }
+        .panel .table td { vertical-align: middle; }
         .panel .stat-badge {
             background: #eef4ff;
             color: #1a3a6b;
@@ -325,9 +292,7 @@
         }
 
         /* ─── TOAST ─── */
-        .toast-container {
-            z-index: 9999;
-        }
+        .toast-container { z-index: 9999; }
 
         /* ─── RESPONSIVE ─── */
         @media (max-width: 992px) {
@@ -335,16 +300,9 @@
                 transform: translateX(-100%);
                 width: 280px;
             }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-            .hamburger {
-                display: flex !important;
-            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 1rem; }
+            .hamburger { display: flex !important; }
             .overlay {
                 display: none;
                 position: fixed;
@@ -352,9 +310,7 @@
                 background: rgba(0, 0, 0, 0.4);
                 z-index: 999;
             }
-            .overlay.show {
-                display: block;
-            }
+            .overlay.show { display: block; }
         }
         .hamburger {
             display: none;
@@ -388,16 +344,9 @@
             padding: 0.3rem 0.5rem;
             white-space: nowrap;
         }
-        .machine-preview-container {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .clickable-row {
-            cursor: pointer;
-        }
-        .clickable-row:hover {
-            background: #d6e4f0 !important;
-        }
+        .machine-preview-container { max-height: 200px; overflow-y: auto; }
+        .clickable-row { cursor: pointer; }
+        .clickable-row:hover { background: #d6e4f0 !important; }
         .selected-machines-list {
             background: #f0f7ff;
             border-radius: 10px;
@@ -410,9 +359,7 @@
             border: none;
             cursor: pointer;
         }
-        .delete-btn:hover {
-            color: #7f1d1d;
-        }
+        .delete-btn:hover { color: #7f1d1d; }
         .edit-btn {
             color: #1a3a6b;
             background: transparent;
@@ -420,9 +367,7 @@
             cursor: pointer;
             margin-right: 6px;
         }
-        .edit-btn:hover {
-            color: #0f2a4f;
-        }
+        .edit-btn:hover { color: #0f2a4f; }
         .form-label {
             font-weight: 500;
             font-size: 0.9rem;
@@ -437,17 +382,9 @@
             border-color: #0f2a4f;
         }
 
-        /* Scrollbar */
-        .sidebar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .sidebar::-webkit-scrollbar-thumb {
-            background: #2a4060;
-            border-radius: 4px;
-        }
-        .sidebar::-webkit-scrollbar-track {
-            background: transparent;
-        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #2a4060; border-radius: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
     </style>
 </head>
 <body>
@@ -465,10 +402,13 @@
             </div>
         </div>
         <nav class="sidebar-nav">
+            <!-- OVERVIEW -->
             <div class="nav-label">Overview</div>
             <a class="nav-item active" data-panel="dashboard" onclick="showPanel('dashboard')">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
+
+            <!-- SETUP -->
             <div class="nav-label">Setup</div>
             <a class="nav-item" data-panel="shops" onclick="showPanel('shops')">
                 <i class="fas fa-store"></i> Shops
@@ -483,11 +423,28 @@
                 <i class="fas fa-tasks"></i> Projects
             </a>
             <a class="nav-item" data-panel="parts" onclick="showPanel('parts')">
-                <i class="fas fa-puzzle-piece"></i> Parts
+                <i class="fas fa-puzzle-piece"></i> Assembly Parts
             </a>
+
+            <!-- PRODUCTION -->
+            <div class="nav-label">Production</div>
             <a class="nav-item" data-panel="prod" onclick="showPanel('prod')">
-                <i class="fas fa-clipboard-list"></i> Records
+                <i class="fas fa-clipboard-list"></i> Operator Records
             </a>
+            <a class="nav-item" data-panel="project-prod" onclick="showPanel('project-prod')">
+                <i class="fas fa-chart-line"></i> Project Production
+            </a>
+            <a class="nav-item" data-panel="machine-time" onclick="showPanel('machine-time')">
+                <i class="fas fa-clock"></i> Machine Utilization
+            </a>
+
+            <!-- ASSEMBLY RECORDS -->
+            <div class="nav-label">Assembly Records</div>
+            <a class="nav-item" data-panel="assembly" onclick="showPanel('assembly')">
+                <i class="fas fa-tools"></i> Assembly Records
+            </a>
+
+            <!-- MANAGEMENT -->
             <div class="nav-label">Management</div>
             <a class="nav-item" data-panel="issues" onclick="showPanel('issues')">
                 <i class="fas fa-exclamation-triangle"></i> Issues
@@ -530,7 +487,6 @@
         <!-- DASHBOARD -->
         <!-- ========================================================== -->
         <div class="panel active" id="panel-dashboard">
-            <!-- Stat Cards -->
             <div class="row g-4 mb-4">
                 <div class="col-xl-3 col-lg-6 col-md-6">
                     <div class="stat-card">
@@ -568,7 +524,7 @@
                     <div class="stat-card">
                         <div class="stat-icon red"><i class="fas fa-clipboard-list"></i></div>
                         <div class="stat-number" id="dashRecords">0</div>
-                        <div class="stat-label">Production Records</div>
+                        <div class="stat-label">Operator Records</div>
                         <div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> This week</div>
                     </div>
                 </div>
@@ -581,8 +537,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Chart Row -->
             <div class="row g-4">
                 <div class="col-lg-8">
                     <div class="chart-container">
@@ -600,7 +554,7 @@
         </div>
 
         <!-- ========================================================== -->
-        <!-- SHOPS PANEL -->
+        <!-- SHOPS -->
         <!-- ========================================================== -->
         <div class="panel" id="panel-shops">
             <div class="card">
@@ -667,7 +621,7 @@
         </div>
 
         <!-- ========================================================== -->
-        <!-- OPERATORS PANEL -->
+        <!-- OPERATORS -->
         <!-- ========================================================== -->
         <div class="panel" id="panel-operators">
             <div class="card">
@@ -716,7 +670,7 @@
         </div>
 
         <!-- ========================================================== -->
-        <!-- MACHINES PANEL -->
+        <!-- MACHINES -->
         <!-- ========================================================== -->
         <div class="panel" id="panel-machines">
             <div class="card">
@@ -752,7 +706,7 @@
         </div>
 
         <!-- ========================================================== -->
-        <!-- PROJECTS PANEL -->
+        <!-- PROJECTS -->
         <!-- ========================================================== -->
         <div class="panel" id="panel-projects">
             <div class="card">
@@ -787,7 +741,7 @@
         </div>
 
         <!-- ========================================================== -->
-        <!-- PARTS PANEL -->
+        <!-- ASSEMBLY PARTS -->
         <!-- ========================================================== -->
         <div class="panel" id="panel-parts">
             <div class="card">
@@ -821,12 +775,12 @@
         </div>
 
         <!-- ========================================================== -->
-        <!-- PRODUCTION RECORDS PANEL -->
+        <!-- OPERATOR RECORDS (Production Records) -->
         <!-- ========================================================== -->
         <div class="panel" id="panel-prod">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-clipboard-list me-2 text-primary"></i>Production Records</span>
+                    <span><i class="fas fa-clipboard-list me-2 text-primary"></i>Operator Records</span>
                     <span class="stat-badge" id="prod-count">0 records</span>
                 </div>
                 <div class="card-body">
@@ -898,7 +852,124 @@
         </div>
 
         <!-- ========================================================== -->
-        <!-- ISSUES PANEL -->
+        <!-- PROJECT PRODUCTION -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-project-prod">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-chart-line me-2 text-primary"></i>Project Production</span>
+                    <span class="stat-badge" id="project-prod-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="form-section" style="max-height:600px; overflow-y:auto;">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Project Production</h6>
+                                <form id="form-project-prod">
+                                    <div class="mb-2"><label class="form-label">Project *</label><select class="form-select" name="project_id" required><option value="">Select project…</option></select></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Week Start *</label><input type="date" class="form-control" name="week_start" required /></div><div class="col-6"><label class="form-label">Week End *</label><input type="date" class="form-control" name="week_end" required /></div></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Planned Qty</label><input type="number" class="form-control" name="planned_qty" /></div><div class="col-6"><label class="form-label">Planned Time</label><input type="number" step="0.01" class="form-control" name="planned_time" /></div></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Actual Qty</label><input type="number" class="form-control" name="actual_qty" /></div><div class="col-6"><label class="form-label">Actual Time</label><input type="number" step="0.01" class="form-control" name="actual_time" /></div></div>
+                                    <div class="mb-2"><label class="form-label">Performance %</label><input type="number" step="0.01" class="form-control" name="performance_pct" /></div>
+                                    <div class="mb-2"><label class="form-label">Upto Date Qty</label><input type="number" class="form-control" name="upto_date_qty" /></div>
+                                    <div class="mb-2"><label class="form-label">Upto Date Time</label><input type="text" class="form-control" name="upto_date_time" /></div>
+                                    <div class="mb-2"><label class="form-label">Overall Perf %</label><input type="number" step="0.01" class="form-control" name="overall_perf_pct" /></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Record</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-project-prod">
+                                    <thead><tr><th>ID</th><th>Project</th><th>Week</th><th>Planned</th><th>Actual</th><th>Perf%</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-project-prod"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- MACHINE UTILIZATION (Machine Time Registration) -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-machine-time">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-clock me-2 text-primary"></i>Machine Utilization</span>
+                    <span class="stat-badge" id="machine-time-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="form-section">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Machine Time</h6>
+                                <form id="form-machine-time">
+                                    <div class="mb-2"><label class="form-label">Machine *</label><select class="form-select" name="machine_id" required><option value="">Select machine…</option></select></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Week Start *</label><input type="date" class="form-control" name="week_start" required /></div><div class="col-6"><label class="form-label">Week End *</label><input type="date" class="form-control" name="week_end" required /></div></div>
+                                    <div class="mb-2"><label class="form-label">Planned Time</label><input type="number" step="0.01" class="form-control" name="planned_time" /></div>
+                                    <div class="mb-2"><label class="form-label">Actual Time</label><input type="number" step="0.01" class="form-control" name="actual_time" /></div>
+                                    <div class="mb-2"><label class="form-label">Utilization %</label><input type="number" step="0.01" class="form-control" name="utilization_pct" /></div>
+                                    <div class="mb-2"><label class="form-label">Remark</label><input type="text" class="form-control" name="remark" /></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Record</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-machine-time">
+                                    <thead><tr><th>ID</th><th>Machine</th><th>Week</th><th>Planned</th><th>Actual</th><th>Util%</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-machine-time"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- ASSEMBLY RECORDS -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-assembly">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-tools me-2 text-primary"></i>Assembly Records</span>
+                    <span class="stat-badge" id="assembly-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-5">
+                            <div class="form-section" style="max-height:600px; overflow-y:auto;">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Assembly Record</h6>
+                                <form id="form-assembly">
+                                    <div class="mb-2"><label class="form-label">Part *</label><select class="form-select" name="part_id" required><option value="">Select part…</option></select></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Week Start *</label><input type="date" class="form-control" name="week_start" required /></div><div class="col-6"><label class="form-label">Week End *</label><input type="date" class="form-control" name="week_end" required /></div></div>
+                                    <div class="row"><div class="col-4"><label class="form-label">Assembling Planned</label><input type="number" step="0.01" class="form-control" name="assembling_planned" /></div><div class="col-4"><label class="form-label">Assembling WIP</label><input type="number" step="0.01" class="form-control" name="assembling_wip" /></div><div class="col-4"><label class="form-label">Assembling Completed</label><input type="number" step="0.01" class="form-control" name="assembling_completed" /></div></div>
+                                    <div class="row"><div class="col-4"><label class="form-label">Polishing Planned</label><input type="number" step="0.01" class="form-control" name="polishing_planned" /></div><div class="col-4"><label class="form-label">Polishing WIP</label><input type="number" step="0.01" class="form-control" name="polishing_wip" /></div><div class="col-4"><label class="form-label">Polishing Completed</label><input type="number" step="0.01" class="form-control" name="polishing_completed" /></div></div>
+                                    <div class="row"><div class="col-4"><label class="form-label">Painting Planned</label><input type="number" step="0.01" class="form-control" name="painting_planned" /></div><div class="col-4"><label class="form-label">Painting WIP</label><input type="number" step="0.01" class="form-control" name="painting_wip" /></div><div class="col-4"><label class="form-label">Painting Completed</label><input type="number" step="0.01" class="form-control" name="painting_completed" /></div></div>
+                                    <div class="mb-2"><label class="form-label">Upto Date Qty</label><input type="number" class="form-control" name="upto_date_qty" /></div>
+                                    <div class="mb-2"><label class="form-label">Performance %</label><input type="number" step="0.01" class="form-control" name="performance_pct" /></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Assembly Record</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-assembly">
+                                    <thead><tr><th>ID</th><th>Part</th><th>Week</th><th>Assem Comp</th><th>Polish Comp</th><th>Paint Comp</th><th>Perf%</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-assembly"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- ISSUES -->
         <!-- ========================================================== -->
         <div class="panel" id="panel-issues">
             <div class="card">
@@ -936,7 +1007,7 @@
         </div>
 
         <!-- ========================================================== -->
-        <!-- PLANS PANEL -->
+        <!-- WEEKLY PLANS -->
         <!-- ========================================================== -->
         <div class="panel" id="panel-plans">
             <div class="card">
@@ -1222,36 +1293,33 @@
 
         // ─── SIDEBAR NAVIGATION ──────────────────────────────────────────
         function showPanel(panelId) {
-            // Hide all panels
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            // Show target
             const target = document.getElementById(`panel-${panelId}`);
             if (target) target.classList.add('active');
 
-            // Update nav
             document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
             const navItem = document.querySelector(`.sidebar-nav .nav-item[data-panel="${panelId}"]`);
             if (navItem) navItem.classList.add('active');
 
-            // Update top bar
             const titles = {
                 dashboard: 'Dashboard',
                 shops: 'Shops',
                 operators: 'Operators',
                 machines: 'Machines',
                 projects: 'Projects',
-                parts: 'Parts',
-                prod: 'Production Records',
+                parts: 'Assembly Parts',
+                prod: 'Operator Records',
+                'project-prod': 'Project Production',
+                'machine-time': 'Machine Utilization',
+                assembly: 'Assembly Records',
                 issues: 'Issues',
                 plans: 'Weekly Plans'
             };
             document.getElementById('pageTitle').textContent = titles[panelId] || panelId;
             document.getElementById('breadcrumbPage').textContent = titles[panelId] || panelId;
 
-            // Close sidebar on mobile
             closeSidebar();
 
-            // If switching to dashboard, update charts
             if (panelId === 'dashboard') {
                 setTimeout(updateDashboardCharts, 200);
             }
@@ -1270,7 +1338,6 @@
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 showToast('Logging out...', 'info');
-                // In a real app, redirect to login page
             }
         }
 
@@ -1408,7 +1475,6 @@
 
         // ─── DASHBOARD CHARTS ──────────────────────────────────────────
         function updateDashboardCharts() {
-            // Performance chart
             const perfCtx = document.getElementById('performanceChart')?.getContext('2d');
             if (perfCtx) {
                 if (performanceChart) performanceChart.destroy();
@@ -1427,31 +1493,15 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(ctx) {
-                                        return `${ctx.parsed.y}%`;
-                                    }
-                                }
-                            }
-                        },
+                        plugins: { legend: { display: false } },
                         scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100,
-                                grid: { color: '#f0f2f5' }
-                            },
-                            x: {
-                                grid: { display: false }
-                            }
+                            y: { beginAtZero: true, max: 100, grid: { color: '#f0f2f5' } },
+                            x: { grid: { display: false } }
                         }
                     }
                 });
             }
 
-            // Utilization chart (pie)
             const utilCtx = document.getElementById('utilizationChart')?.getContext('2d');
             if (utilCtx) {
                 if (utilizationChart) utilizationChart.destroy();
@@ -1469,10 +1519,8 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { padding: 12, usePointStyle: true, pointStyle: 'circle' }
-                            }
+                            legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true,
+                                    pointStyle: 'circle' } }
                         },
                         cutout: '65%',
                     }
@@ -1495,10 +1543,8 @@
             populateSelect('form-machines [name="shop_id"]', res, 'shop_id', 'shop_name');
             populateSelect('form-prod [name="shop_id"]', res, 'shop_id', 'shop_name');
 
-            // Update dashboard
             document.getElementById('dashShops').textContent = res ? res.length : 0;
 
-            // Operator tab shop dropdown
             const opShopSelect = document.getElementById('operator-shop-select');
             if (opShopSelect) {
                 const current = opShopSelect.value;
@@ -1522,7 +1568,6 @@
                 if (current) opShopSelect.value = current;
             }
 
-            // Production Records shop filter
             const prodShopSelect = document.getElementById('prod-shop-select');
             if (prodShopSelect) {
                 prodShopSelect.addEventListener('change', function() {
@@ -1543,9 +1588,7 @@
             updateCount('operator-count', res);
             populateSelect('form-prod [name="operator_id"]', res, 'operator_id', 'full_name');
 
-            // Update dashboard
             document.getElementById('dashOperators').textContent = res ? res.length : 0;
-
             refreshProdOperatorFilter();
         }
 
@@ -1561,7 +1604,6 @@
             updateCount('machine-count', res);
             populateSelect('form-machine-time [name="machine_id"]', res, 'machine_id', 'machine_name');
 
-            // Update dashboard
             document.getElementById('dashMachines').textContent = res ? res.length : 0;
 
             const typeSelect = document.querySelector('form#form-shops [name="shop_type"]');
@@ -1608,6 +1650,43 @@
             document.getElementById('dashRecords').textContent = res ? res.length : 0;
         }
 
+        async function loadProjectProd() {
+            const res = await apiFetch('/project-production');
+            renderTable('tbody-project-prod', res, p =>
+                `<tr><td>${p.prod_id}</td><td>${esc(p.project_name || p.project_id)}</td>
+                    <td>${p.week_start} – ${p.week_end}</td><td>${p.planned_qty ?? '—'}</td>
+                    <td>${p.actual_qty ?? '—'}</td><td>${p.performance_pct ?? '—'}</td>
+                    <td><button class="edit-btn" onclick="editProjectProd(${p.prod_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteProjectProd(${p.prod_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('project-prod-count', res);
+        }
+
+        async function loadMachineTime() {
+            const res = await apiFetch('/machine-time-reg');
+            renderTable('tbody-machine-time', res, m =>
+                `<tr><td>${m.reg_id}</td><td>${esc(m.machine_name || m.machine_id)}</td>
+                    <td>${m.week_start} – ${m.week_end}</td><td>${m.planned_time ?? '—'}</td>
+                    <td>${m.actual_time ?? '—'}</td><td>${m.utilization_pct ?? '—'}</td>
+                    <td><button class="edit-btn" onclick="editMachineTime(${m.reg_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteMachineTime(${m.reg_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('machine-time-count', res);
+        }
+
+        async function loadAssembly() {
+            const res = await apiFetch('/assembly-records');
+            renderTable('tbody-assembly', res, a =>
+                `<tr><td>${a.assembly_id}</td><td>${esc(a.part_name || a.part_id)}</td>
+                    <td>${a.week_start} – ${a.week_end}</td><td>${a.assembling_completed ?? '—'}</td>
+                    <td>${a.polishing_completed ?? '—'}</td><td>${a.painting_completed ?? '—'}</td>
+                    <td>${a.performance_pct ?? '—'}</td>
+                    <td><button class="edit-btn" onclick="editAssembly(${a.assembly_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteAssembly(${a.assembly_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('assembly-count', res);
+        }
+
         async function loadIssues() {
             const res = await apiFetch('/issues');
             renderTable('tbody-issues', res, i =>
@@ -1633,25 +1712,8 @@
             updateCount('plan-count', res);
         }
 
-        // ─── PROJECT PRODUCTION ──────────────────────────────────────
-        async function loadProjectProd() {
-            const res = await apiFetch('/project-production');
-            // Not displayed directly in this UI, but loaded for data consistency
-        }
-
-        async function loadMachineTime() {
-            const res = await apiFetch('/machine-time-reg');
-            // Not displayed directly in this UI, but loaded for data consistency
-        }
-
-        async function loadAssembly() {
-            const res = await apiFetch('/assembly-records');
-            // Not displayed directly in this UI, but loaded for data consistency
-        }
-
         // ─── FORM SUBMIT HANDLERS ──────────────────────────────────────
 
-        // Shops
         document.getElementById('form-shops').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1665,7 +1727,6 @@
             loadShops();
         });
 
-        // Operators
         document.getElementById('form-operators').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1689,7 +1750,6 @@
             loadOperators();
         });
 
-        // Machines
         document.getElementById('form-machines').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1701,7 +1761,6 @@
             loadMachines();
         });
 
-        // Projects
         document.getElementById('form-projects').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1714,7 +1773,6 @@
             loadProjects();
         });
 
-        // Parts
         document.getElementById('form-parts').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1727,7 +1785,6 @@
             loadParts();
         });
 
-        // Production Records
         document.getElementById('form-prod').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1751,7 +1808,50 @@
             loadProdRecords();
         });
 
-        // Issues
+        document.getElementById('form-project-prod').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.project_id = parseInt(data.project_id);
+            ['planned_qty', 'actual_qty', 'upto_date_qty'].forEach(f => { if (data[f]) data[f] = parseInt(data[f]); });
+            ['planned_time', 'actual_time', 'performance_pct', 'overall_perf_pct'].forEach(f => { if (data[f]) data[f] =
+                    parseFloat(data[f]); });
+            const res = await apiFetch('/project-production', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Project production record created');
+            e.target.reset();
+            loadProjectProd();
+        });
+
+        document.getElementById('form-machine-time').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.machine_id = parseInt(data.machine_id);
+            ['planned_time', 'actual_time', 'utilization_pct'].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
+            const res = await apiFetch('/machine-time-reg', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Machine time record created');
+            e.target.reset();
+            loadMachineTime();
+        });
+
+        document.getElementById('form-assembly').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.part_id = parseInt(data.part_id);
+            ['assembling_planned', 'assembling_wip', 'assembling_completed', 'polishing_planned', 'polishing_wip',
+                'polishing_completed', 'painting_planned', 'painting_wip', 'painting_completed', 'upto_date_qty',
+                'performance_pct'
+            ].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
+            const res = await apiFetch('/assembly-records', { method: 'POST', body: JSON.stringify(data) });
+            if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Assembly record created');
+            e.target.reset();
+            loadAssembly();
+        });
+
         document.getElementById('form-issues').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1764,7 +1864,6 @@
             loadIssues();
         });
 
-        // Plans
         document.getElementById('form-plans').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1841,6 +1940,34 @@
                         qty) }) }); if (res.error) { showToast(res.error, 'danger'); return; } showToast('Record updated');
             loadProdRecords(); };
 
+        window.deleteProjectProd = async (id) => { if (!confirm('Delete this record?')) return; const res = await apiFetch(
+                `/project-production/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Record deleted');
+            loadProjectProd(); };
+        window.editProjectProd = async (id) => { const qty = prompt('Enter new actual qty:'); if (qty === null) return; const
+                res = await apiFetch(`/project-production/${id}`, { method: 'PUT', body: JSON.stringify({ actual_qty: parseInt(
+                        qty) }) }); if (res.error) { showToast(res.error, 'danger'); return; } showToast('Record updated');
+            loadProjectProd(); };
+
+        window.deleteMachineTime = async (id) => { if (!confirm('Delete this record?')) return; const res = await apiFetch(
+                `/machine-time-reg/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Record deleted');
+            loadMachineTime(); };
+        window.editMachineTime = async (id) => { const util = prompt('Enter new utilization %:'); if (util === null) return;
+            const res = await apiFetch(`/machine-time-reg/${id}`, { method: 'PUT', body: JSON.stringify({ utilization_pct: parseFloat(
+                        util) }) }); if (res.error) { showToast(res.error, 'danger'); return; } showToast('Record updated');
+            loadMachineTime(); };
+
+        window.deleteAssembly = async (id) => { if (!confirm('Delete this assembly record?')) return; const res = await
+                apiFetch(`/assembly-records/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger');
+                return; } showToast('Assembly record deleted');
+            loadAssembly(); };
+        window.editAssembly = async (id) => { const perf = prompt('Enter new performance %:'); if (perf === null) return; const
+                res = await apiFetch(`/assembly-records/${id}`, { method: 'PUT', body: JSON.stringify({ performance_pct: parseFloat(
+                        perf) }) }); if (res.error) { showToast(res.error, 'danger'); return; } showToast(
+                'Assembly record updated');
+            loadAssembly(); };
+
         window.deleteIssue = async (id) => { if (!confirm('Delete this issue?')) return; const res = await apiFetch(
                 `/issues/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
             showToast('Issue deleted');
@@ -1888,25 +2015,20 @@
             await loadIssues();
             await loadPlans();
 
-            // Initial chart render
             setTimeout(updateDashboardCharts, 300);
 
-            // Set initial operator names if a shop is selected
             const opShopSelect = document.getElementById('operator-shop-select');
             if (opShopSelect && opShopSelect.value) {
                 populateOperatorNames(opShopSelect.value);
             }
 
-            // Production operator filter
             refreshProdOperatorFilter();
 
-            // Shop type initial population
             const shopNameSelect = document.querySelector('form#form-shops [name="shop_name"]');
             if (shopNameSelect && shopNameSelect.value) {
                 populateShopType(shopNameSelect.value);
             }
 
-            // Close sidebar on outside click (mobile)
             document.getElementById('overlay')?.addEventListener('click', closeSidebar);
         }
 
