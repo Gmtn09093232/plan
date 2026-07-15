@@ -266,7 +266,7 @@
         <div class="tab-content" id="mainTabsContent">
 
             <!-- ============================================================ -->
-            <!-- SHOPS (MODIFIED with clickable preview and selected machines) -->
+            <!-- SHOPS (with clickable preview and selected machines) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade show active" id="pane-shops" role="tabpanel">
                 <div class="card">
@@ -353,7 +353,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- All other tabs (unchanged) – included below for completeness -->
+            <!-- OPERATORS (MODIFIED with Excel operator list) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-operators" role="tabpanel">
                 <div class="card">
@@ -368,13 +368,15 @@
                                     <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Operator</h6>
                                     <form id="form-operators">
                                         <div class="mb-2">
-                                            <label class="form-label">Full Name *</label>
-                                            <input type="text" class="form-control" name="full_name" required />
+                                            <label class="form-label">Shop *</label>
+                                            <select class="form-select" name="shop_id" required id="operator-shop-select">
+                                                <option value="">Select shop…</option>
+                                            </select>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Shop *</label>
-                                            <select class="form-select" name="shop_id" required>
-                                                <option value="">Select shop…</option>
+                                            <label class="form-label">Full Name *</label>
+                                            <select class="form-select" name="full_name" required id="operator-name-select">
+                                                <option value="">Select a shop first…</option>
                                             </select>
                                         </div>
                                         <div class="mb-2 form-check">
@@ -385,6 +387,9 @@
                                             <i class="fas fa-save me-1"></i> Create Operator
                                         </button>
                                     </form>
+                                    <div class="mt-3 small text-muted">
+                                        <i class="fas fa-info-circle me-1"></i> Operator list loaded from Excel file.
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-lg-8">
@@ -408,7 +413,9 @@
                 </div>
             </div>
 
-            <!-- MACHINES tab -->
+            <!-- ============================================================ -->
+            <!-- MACHINES -->
+            <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-machines" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -467,7 +474,9 @@
                 </div>
             </div>
 
-            <!-- PROJECTS tab -->
+            <!-- ============================================================ -->
+            <!-- PROJECTS -->
+            <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-projects" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -519,7 +528,9 @@
                 </div>
             </div>
 
-            <!-- ASSEMBLY PARTS tab -->
+            <!-- ============================================================ -->
+            <!-- ASSEMBLY PARTS -->
+            <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-parts" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -568,7 +579,9 @@
                 </div>
             </div>
 
-            <!-- PRODUCTION RECORDS tab -->
+            <!-- ============================================================ -->
+            <!-- PRODUCTION RECORDS -->
+            <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-prod" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -730,7 +743,9 @@
                 </div>
             </div>
 
-            <!-- PROJECT PRODUCTION tab -->
+            <!-- ============================================================ -->
+            <!-- PROJECT PRODUCTION -->
+            <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-project-prod" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -824,7 +839,9 @@
                 </div>
             </div>
 
-            <!-- MACHINE TIME REG tab -->
+            <!-- ============================================================ -->
+            <!-- MACHINE TIME REG -->
+            <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-machine-time" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -898,7 +915,9 @@
                 </div>
             </div>
 
-            <!-- ASSEMBLY RECORDS tab -->
+            <!-- ============================================================ -->
+            <!-- ASSEMBLY RECORDS -->
+            <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-assembly" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -1007,7 +1026,9 @@
                 </div>
             </div>
 
-            <!-- ISSUES tab -->
+            <!-- ============================================================ -->
+            <!-- ISSUES -->
+            <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-issues" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -1080,7 +1101,9 @@
                 </div>
             </div>
 
-            <!-- PLANS tab -->
+            <!-- ============================================================ -->
+            <!-- PLANS -->
+            <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-plans" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -1191,6 +1214,50 @@
         // ─── CONFIG ────────────────────────────────────────────────────────
         const API_BASE = 'http://localhost:3000/api';
 
+        // ─── OPERATOR DATA FROM EXCEL ──────────────────────────────────
+        // Each shop maps to an array of operator names
+        const operatorData = {
+            "Machine Shop": [
+                "Yilikal Anteneh", "Ayshshim Chalie", "Tsegaye Chanie", "Melkamu Yaregal",
+                "Dinkayehu Melese", "Mulu Abebe", "Birtukan Alamirew", "Meseret Mulugieta",
+                "Solomon Alemu", "Nahom solomon", "Getasew Dessie", "Takele Mekie",
+                "Tilaye Aragew", "Ayaliew worku", "Biniyam Misganaw", "Habtamu Afewerk",
+                "Oumer hasen", "Awol shiferaw", "getaneh deml", "Temesgen alem",
+                "werkagegnehu shewaye", "Kefialew wedaje", "Tesfanew gizte", "Wale Andualem"
+            ],
+            "Fabrication Shop": [
+                "Abdela Endeshaw", "Genet siltan", "Gojam Adamu", "Astray tsiga",
+                "Abayneh Tadese", "Birhanu Kindu", "Temesgen nibret", "Abrham ayana",
+                "Getachew"
+            ],
+            "Forging Pressing and Heat Treatment Machine Shop": [
+                "H/eyesus Abeje", "shumye guadu"
+            ],
+            "Welding Shop": [
+                "Abebaw Ager", "Wubit Abera", "Mesafint Afewerk", "Belachew Tesfahun",
+                "Chalachew Amogne", "Amlakie semani", "Adebabay Tawuneh", "Yenatfanta Kassa",
+                "Amelmal Delelew", "Netsanet Bazezew", "Samrawit Mekonnen", "Misganaw Tilahun",
+                "Mniyichil Tilahun", "Molalgn Ayinie", "Tarekegn wubu", "Yaregal mengesha",
+                "Azmeraw kebtie", "Melaku asimare", "Yitayew yilma", "Bekalu yaregal",
+                "Agumas bishaw", "Salamlak", "Zerihun dejen", "Bekele Kassa",
+                "Birtukan mola", "Esey alebachew", "Zemenu mola", "Belete siltanu",
+                "Hailye yismaw", "Metalgn getu", "Firehiwot t/mariam", "Zelalem melkamu",
+                "Ejigu bogale", "Andualem asresaw", "Nigusu bogale", "Smegnew alem",
+                "Zelalem aweke", "Wubshet abe", "Wasihun fente"
+            ],
+            "Polishing and Painting Shop": [
+                "Antehunegn Asres", "Metadel gietu", "Agumas Bishaw", "Mulu Tesfa",
+                "Addisu Koye", "Demelash", "Nigusie", "Yihenew Lakew",
+                "Minale Yechale", // Polishing
+                "Adisie Ewunetu", "Adgo Baye", "Zelalem Getnet", "Yibeltal Dires",
+                "yeshumnesh" // Painting
+            ],
+            "Assembly Shop": [
+                "Endalew Admasu", "Zemenu Yohannes", "Nigatu dires", "Yohannes Biazin",
+                "Birhanu demlew", "Temesgen alem", "Wale Andualem", "Habtamu manaye"
+            ]
+        };
+
         // ─── MAPPING: shop name → machine categories ──────────────────
         const shopMachineMap = {
             "Machine Shop": ["Lathe", "Milling", "Drilling", "Grinding", "CNC", "Honing", "Broaching", "EDM", "Wire Cutting",
@@ -1209,7 +1276,7 @@
             "Assembly Shop": ["Assembly", "Crimping", "Printing", "Press"]
         };
 
-        // ─── EXCEL MACHINE DATA (from the provided file) ──────────────
+        // ─── EXCEL MACHINE DATA ──────────────────────────────────────
         const excelDescriptions = [
             "Power hack saw",
             "Medium duty lathe machine, Conventional",
@@ -1416,10 +1483,8 @@
 
         // ─── SELECT / DESELECT MACHINES ──────────────────────────────
         function selectMachine(code) {
-            // Find machine by code
             const machine = excelMachines.find(m => m.code === code);
             if (!machine) return;
-            // Check if already selected
             if (selectedMachines.some(m => m.code === code)) {
                 showToast(`"${machine.name}" is already selected`, 'warning');
                 return;
@@ -1459,6 +1524,28 @@
             tbody.innerHTML = html;
         }
 
+        // ─── OPERATOR DROPDOWN HELPER ──────────────────────────────────
+        function populateOperatorNames(shopName) {
+            const nameSelect = document.getElementById('operator-name-select');
+            if (!nameSelect) return;
+            nameSelect.innerHTML = '';
+            if (!shopName || !operatorData[shopName]) {
+                nameSelect.innerHTML = '<option value="">Select a shop first…</option>';
+                return;
+            }
+            const names = operatorData[shopName];
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Select operator name…';
+            nameSelect.appendChild(placeholder);
+            names.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                nameSelect.appendChild(opt);
+            });
+        }
+
         // ─── SHOPS ──────────────────────────────────────────────────────
         let allMachines = [];
 
@@ -1479,22 +1566,44 @@
             populateSelect('form-operators [name="shop_id"]', res, 'shop_id', 'shop_name');
             populateSelect('form-machines [name="shop_id"]', res, 'shop_id', 'shop_name');
             populateSelect('form-prod [name="shop_id"]', res, 'shop_id', 'shop_name');
+
+            // Also populate the operator shop dropdown with all shop names (including those from Excel)
+            const opShopSelect = document.getElementById('operator-shop-select');
+            if (opShopSelect) {
+                const current = opShopSelect.value;
+                opShopSelect.innerHTML = '<option value="">Select shop…</option>';
+                // Add shops from the database (which should match the shop names)
+                if (res && res.length) {
+                    res.forEach(shop => {
+                        const opt = document.createElement('option');
+                        opt.value = shop.shop_name;
+                        opt.textContent = shop.shop_name;
+                        opShopSelect.appendChild(opt);
+                    });
+                }
+                // Also add any shop that only exists in operatorData but not in DB (fallback)
+                for (const shopName in operatorData) {
+                    if (!res || !res.some(s => s.shop_name === shopName)) {
+                        const opt = document.createElement('option');
+                        opt.value = shopName;
+                        opt.textContent = shopName;
+                        opShopSelect.appendChild(opt);
+                    }
+                }
+                if (current) opShopSelect.value = current;
+            }
         }
 
         document.getElementById('form-shops').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
             const data = Object.fromEntries(fd);
-            // Optionally, we could send selectedMachines with the shop creation
-            // but we'll just show a toast with the count.
             if (selectedMachines.length > 0) {
                 showToast(`Shop created with ${selectedMachines.length} selected machines (client-side only)`, 'info');
             }
             const res = await apiFetch('/shops', { method: 'POST', body: JSON.stringify(data) });
             if (res.error) { showToast(res.error, 'danger'); return; }
             showToast('Shop created successfully');
-            // Clear selection after creation? Keep or reset?
-            // We'll keep selection for convenience.
             e.target.reset();
             const typeSelect = document.querySelector('form#form-shops [name="shop_type"]');
             if (typeSelect) {
@@ -1552,7 +1661,6 @@
                         <tbody>
             `;
             filtered.forEach(m => {
-                // Make row clickable – pass code to selectMachine
                 html += `
                     <tr class="clickable-row" onclick="selectMachine('${m.code}')">
                         <td>${esc(m.code)}</td>
@@ -1612,16 +1720,44 @@
             populateSelect('form-prod [name="operator_id"]', res, 'operator_id', 'full_name');
         }
 
+        // ─── OPERATOR FORM HANDLING ──────────────────────────────────
         document.getElementById('form-operators').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
             const data = Object.fromEntries(fd);
             data.is_active = data.is_active === 'true';
+
+            // Get the shop name from the dropdown (we need to find the shop_id from the shop name)
+            const shopName = data.shop_id;
+            // We need to find the actual shop_id from the shops table
+            // Since we populate the dropdown with shop names, we need to look up the shop_id
+            // We'll fetch shops again or use the existing list
+            const shopsRes = await apiFetch('/shops');
+            const shop = shopsRes.find(s => s.shop_name === shopName);
+            if (shop) {
+                data.shop_id = shop.shop_id;
+            } else {
+                // If shop not found in DB, we'll use the shop name as fallback (though it will fail on backend)
+                showToast('Shop not found in database. Please create the shop first.', 'danger');
+                return;
+            }
+
             const res = await apiFetch('/operators', { method: 'POST', body: JSON.stringify(data) });
             if (res.error) { showToast(res.error, 'danger'); return; }
-            showToast('Operator created');
+            showToast('Operator created successfully');
             e.target.reset();
+            // Reset the name dropdown
+            const nameSelect = document.getElementById('operator-name-select');
+            if (nameSelect) {
+                nameSelect.innerHTML = '<option value="">Select a shop first…</option>';
+            }
             loadOperators();
+        });
+
+        // ─── OPERATOR SHOP SELECT CHANGE ──────────────────────────────
+        document.getElementById('operator-shop-select')?.addEventListener('change', function() {
+            const shopName = this.value;
+            populateOperatorNames(shopName);
         });
 
         window.deleteOperator = async (id) => {
@@ -2197,6 +2333,12 @@
             }
             if (shopNameSelect && shopNameSelect.value) {
                 populateShopType(shopNameSelect.value);
+            }
+
+            // Also populate operator names if a shop is pre-selected
+            const opShopSelect = document.getElementById('operator-shop-select');
+            if (opShopSelect && opShopSelect.value) {
+                populateOperatorNames(opShopSelect.value);
             }
         }
 
