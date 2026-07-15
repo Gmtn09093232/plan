@@ -943,6 +943,14 @@
             container.innerHTML = html;
         }
 
+        // ─── UPDATE PRODUCTION OPERATORS AFTER OPERATORS LOAD ──────
+        function refreshProdOperatorFilter() {
+            const prodShopSelect = document.getElementById('prod-shop-select');
+            if (prodShopSelect && prodShopSelect.value) {
+                filterProdOperators(prodShopSelect.value);
+            }
+        }
+
         // ─── LOAD FUNCTIONS ──────────────────────────────────────────
 
         async function loadShops() {
@@ -982,13 +990,15 @@
                 if (current) opShopSelect.value = current;
             }
 
-            // Production Records shop filter
+            // Production Records shop filter - set up event listener
             const prodShopSelect = document.getElementById('prod-shop-select');
             if (prodShopSelect) {
                 prodShopSelect.addEventListener('change', function() {
                     filterProdOperators(this.value);
                 });
-                if (prodShopSelect.value) filterProdOperators(prodShopSelect.value);
+                // If a shop is already selected, but operators may not be loaded yet,
+                // we'll defer the actual filtering until after loadOperators.
+                // We'll call refreshProdOperatorFilter after loadOperators completes.
             }
         }
 
@@ -1003,6 +1013,9 @@
             );
             updateCount('operator-count', res);
             populateSelect('form-prod [name="operator_id"]', res, 'operator_id', 'full_name');
+
+            // Now that operators are loaded, refresh the production operator dropdown
+            refreshProdOperatorFilter();
         }
 
         async function loadMachines() {
@@ -1219,6 +1232,8 @@
             e.target.reset();
             const opSelect = document.getElementById('prod-operator-select');
             if (opSelect) opSelect.innerHTML = '<option value="">Select a shop first…</option>';
+            // Refresh the filter in case the shop is still selected
+            refreshProdOperatorFilter();
             loadProdRecords();
         });
 
@@ -1423,7 +1438,7 @@
         // ─── INIT ──────────────────────────────────────────────────────
         async function init() {
             await loadShops();
-            await loadOperators();
+            await loadOperators();  // This will call refreshProdOperatorFilter after loading
             await loadMachines();
             await loadProjects();
             await loadParts();
@@ -1444,10 +1459,8 @@
                 populateOperatorNames(opShopSelect.value);
             }
 
-            const prodShopSelect = document.getElementById('prod-shop-select');
-            if (prodShopSelect && prodShopSelect.value) {
-                filterProdOperators(prodShopSelect.value);
-            }
+            // Also ensure production operators are filtered after all loads
+            refreshProdOperatorFilter();
         }
 
         document.addEventListener('DOMContentLoaded', init);
