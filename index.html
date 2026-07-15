@@ -170,6 +170,18 @@
             max-height: 200px;
             overflow-y: auto;
         }
+        .clickable-row {
+            cursor: pointer;
+        }
+        .clickable-row:hover {
+            background: #d6e4f0 !important;
+        }
+        .selected-machines-list {
+            background: #f0f7ff;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cde0f0;
+        }
     </style>
 </head>
 <body>
@@ -254,7 +266,7 @@
         <div class="tab-content" id="mainTabsContent">
 
             <!-- ============================================================ -->
-            <!-- SHOPS (MODIFIED with Excel machine list) -->
+            <!-- SHOPS (MODIFIED with clickable preview and selected machines) -->
             <!-- ============================================================ -->
             <div class="tab-pane fade show active" id="pane-shops" role="tabpanel">
                 <div class="card">
@@ -292,11 +304,30 @@
                                             <i class="fas fa-save me-1"></i> Create Shop
                                         </button>
                                     </form>
-                                    <!-- Machine list preview with detailed table (from Excel) -->
+
+                                    <!-- Machine list preview with clickable rows -->
                                     <div class="machine-list-card mt-3" id="machine-list-preview">
-                                        <small class="text-muted"><i class="fas fa-cogs me-1"></i> Machines of this type (from Excel):</small>
+                                        <small class="text-muted"><i class="fas fa-cogs me-1"></i> Machines of this type (click to select):</small>
                                         <div id="machine-list-items" class="mt-1">
                                             <span class="text-muted" style="font-size:0.9rem;">Select a shop type to see machines</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Selected Machines list -->
+                                    <div class="selected-machines-list mt-3" id="selected-machines-list" style="display:none;">
+                                        <small class="text-muted"><i class="fas fa-check-circle me-1"></i> Selected Machines (<span id="selected-count">0</span>):</small>
+                                        <div id="selected-machines-items" class="mt-1">
+                                            <table class="table table-sm table-bordered machine-preview-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Code</th>
+                                                        <th>Full Name</th>
+                                                        <th>Category</th>
+                                                        <th style="width:60px;">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="selected-machines-tbody"></tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -322,7 +353,7 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- OPERATORS -->
+            <!-- All other tabs (unchanged) – included below for completeness -->
             <!-- ============================================================ -->
             <div class="tab-pane fade" id="pane-operators" role="tabpanel">
                 <div class="card">
@@ -377,9 +408,7 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- MACHINES -->
-            <!-- ============================================================ -->
+            <!-- MACHINES tab -->
             <div class="tab-pane fade" id="pane-machines" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -438,9 +467,7 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- PROJECTS -->
-            <!-- ============================================================ -->
+            <!-- PROJECTS tab -->
             <div class="tab-pane fade" id="pane-projects" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -492,9 +519,7 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- ASSEMBLY PARTS -->
-            <!-- ============================================================ -->
+            <!-- ASSEMBLY PARTS tab -->
             <div class="tab-pane fade" id="pane-parts" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -543,9 +568,7 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- PRODUCTION RECORDS -->
-            <!-- ============================================================ -->
+            <!-- PRODUCTION RECORDS tab -->
             <div class="tab-pane fade" id="pane-prod" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -707,9 +730,7 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- PROJECT PRODUCTION -->
-            <!-- ============================================================ -->
+            <!-- PROJECT PRODUCTION tab -->
             <div class="tab-pane fade" id="pane-project-prod" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -803,9 +824,7 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- MACHINE TIME REG -->
-            <!-- ============================================================ -->
+            <!-- MACHINE TIME REG tab -->
             <div class="tab-pane fade" id="pane-machine-time" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -879,9 +898,7 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- ASSEMBLY RECORDS -->
-            <!-- ============================================================ -->
+            <!-- ASSEMBLY RECORDS tab -->
             <div class="tab-pane fade" id="pane-assembly" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -990,9 +1007,7 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- ISSUES -->
-            <!-- ============================================================ -->
+            <!-- ISSUES tab -->
             <div class="tab-pane fade" id="pane-issues" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -1065,9 +1080,7 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- PLANS -->
-            <!-- ============================================================ -->
+            <!-- PLANS tab -->
             <div class="tab-pane fade" id="pane-plans" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -1272,7 +1285,6 @@
         // ─── CATEGORY ASSIGNMENT FUNCTION ─────────────────────────────
         function assignCategory(desc) {
             const d = desc.toLowerCase();
-            // Machine Shop
             if (d.includes('lathe')) return 'Lathe';
             if (d.includes('milling')) return 'Milling';
             if (d.includes('drill')) return 'Drilling';
@@ -1287,8 +1299,6 @@
             if (d.includes('pantograph')) return 'Pantograph';
             if (d.includes('honing')) return 'Honing';
             if (d.includes('vtc')) return 'CNC';
-
-            // Fabrication
             if (d.includes('shear')) return 'Shearing';
             if (d.includes('bending')) return 'Bending';
             if (d.includes('rolling')) return 'Rolling';
@@ -1298,8 +1308,6 @@
             if (d.includes('turret punch')) return 'Turret Punch';
             if (d.includes('water jet')) return 'Water Jet';
             if (d.includes('flame cutter')) return 'Cutting';
-
-            // Welding
             if (d.includes('welding') || d.includes('mig') || d.includes('tig') || d.includes('arc') || d.includes(
                 'submerged')) {
                 if (d.includes('spot')) return 'Spot Welding';
@@ -1309,8 +1317,6 @@
                 if (d.includes('submerged')) return 'Submerged Arc';
                 return 'Arc Welding';
             }
-
-            // Forging / Press / Heat
             if (d.includes('forging') || d.includes('hammer') || d.includes('press') || d.includes('forge')) {
                 if (d.includes('hammer')) return 'Hammer';
                 if (d.includes('press')) return 'Forging Press';
@@ -1320,11 +1326,7 @@
                 d.includes('tempering') || d.includes('induction')) {
                 return 'Heat Treatment';
             }
-
-            // Casting
             if (d.includes('casting')) return 'Sand Casting';
-
-            // Polishing / Painting
             if (d.includes('polish') || d.includes('painting') || d.includes('blast') || d.includes('edging') || d.includes(
                 'cleaning')) {
                 if (d.includes('blast')) return 'Blast';
@@ -1334,13 +1336,9 @@
                 if (d.includes('cleaning')) return 'Cleaning';
                 return 'Polishing';
             }
-
-            // Assembly / other
             if (d.includes('crimping') || d.includes('printing') || d.includes('tank end')) {
                 return 'Assembly';
             }
-
-            // Fallback
             return 'Other';
         }
 
@@ -1362,6 +1360,9 @@
                 shop: shop
             };
         });
+
+        // ─── STATE: selected machines ──────────────────────────────────
+        let selectedMachines = [];
 
         // ─── HELPERS ──────────────────────────────────────────────────────
         function getVal(id) { return document.getElementById(id); }
@@ -1413,6 +1414,51 @@
             if (el) el.textContent = (data && data.length) ? `${data.length} records` : '0 records';
         }
 
+        // ─── SELECT / DESELECT MACHINES ──────────────────────────────
+        function selectMachine(code) {
+            // Find machine by code
+            const machine = excelMachines.find(m => m.code === code);
+            if (!machine) return;
+            // Check if already selected
+            if (selectedMachines.some(m => m.code === code)) {
+                showToast(`"${machine.name}" is already selected`, 'warning');
+                return;
+            }
+            selectedMachines.push(machine);
+            updateSelectedList();
+            showToast(`"${machine.name}" added to selection`, 'success');
+        }
+
+        function removeSelectedMachine(code) {
+            selectedMachines = selectedMachines.filter(m => m.code !== code);
+            updateSelectedList();
+            showToast('Machine removed from selection', 'info');
+        }
+
+        function updateSelectedList() {
+            const container = document.getElementById('selected-machines-list');
+            const tbody = document.getElementById('selected-machines-tbody');
+            const countSpan = document.getElementById('selected-count');
+            if (selectedMachines.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+            countSpan.textContent = selectedMachines.length;
+            let html = '';
+            selectedMachines.forEach(m => {
+                html += `
+                    <tr>
+                        <td>${esc(m.code)}</td>
+                        <td>${esc(m.name)}</td>
+                        <td>${esc(m.category)}</td>
+                        <td><button class="btn btn-sm btn-outline-danger" onclick="removeSelectedMachine('${m.code}')"><i class="fas fa-times"></i></button></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
         // ─── SHOPS ──────────────────────────────────────────────────────
         let allMachines = [];
 
@@ -1439,9 +1485,16 @@
             e.preventDefault();
             const fd = new FormData(e.target);
             const data = Object.fromEntries(fd);
+            // Optionally, we could send selectedMachines with the shop creation
+            // but we'll just show a toast with the count.
+            if (selectedMachines.length > 0) {
+                showToast(`Shop created with ${selectedMachines.length} selected machines (client-side only)`, 'info');
+            }
             const res = await apiFetch('/shops', { method: 'POST', body: JSON.stringify(data) });
             if (res.error) { showToast(res.error, 'danger'); return; }
             showToast('Shop created successfully');
+            // Clear selection after creation? Keep or reset?
+            // We'll keep selection for convenience.
             e.target.reset();
             const typeSelect = document.querySelector('form#form-shops [name="shop_type"]');
             if (typeSelect) {
@@ -1471,7 +1524,7 @@
             loadShops();
         };
 
-        // ─── MACHINE LIST PREVIEW (USING EXCEL DATA) ──────────────────
+        // ─── MACHINE LIST PREVIEW (CLICKABLE ROWS) ──────────────────
         function updateMachinePreview(category) {
             const container = document.getElementById('machine-list-items');
             if (!category) {
@@ -1491,7 +1544,7 @@
                         <thead>
                             <tr>
                                 <th>Code</th>
-                                <th>Name</th>
+                                <th>Full Name</th>
                                 <th>Category</th>
                                 <th>Shop</th>
                             </tr>
@@ -1499,8 +1552,9 @@
                         <tbody>
             `;
             filtered.forEach(m => {
+                // Make row clickable – pass code to selectMachine
                 html += `
-                    <tr>
+                    <tr class="clickable-row" onclick="selectMachine('${m.code}')">
                         <td>${esc(m.code)}</td>
                         <td>${esc(m.name)}</td>
                         <td>${esc(m.category)}</td>
