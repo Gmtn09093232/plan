@@ -1,502 +1,2063 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const { createClient } = require('@supabase/supabase-js');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bahir-Dar Factory · Management Dashboard</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            min-height: 100vh;
+        }
 
-const app = express();
-const port = process.env.PORT || 3000;
+        .sidebar {
+            width: 260px;
+            background: #0b1a30;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar-brand {
+            padding: 1.5rem 1.25rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar-brand i {
+            font-size: 1.6rem;
+            color: #4a9eff;
+        }
+        .sidebar-brand span {
+            color: #fff;
+        }
+        .sidebar-brand small {
+            font-weight: 400;
+            font-size: 0.7rem;
+            color: #8a9bb5;
+            display: block;
+            margin-top: 2px;
+        }
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+        }
+        .sidebar-nav .nav-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6a7f9e;
+            padding: 0.5rem 1.5rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 1.5rem;
+            color: #b0c4de;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+        .sidebar-nav .nav-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+        .sidebar-nav .nav-item.active {
+            background: rgba(74, 158, 255, 0.15);
+            color: #4a9eff;
+            border-left-color: #4a9eff;
+        }
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .sidebar-footer .nav-item {
+            color: #b0c4de;
+            text-decoration: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .sidebar-footer .nav-item:hover {
+            color: #fff;
+        }
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
 
-// Supabase client
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 1.5rem 2rem 2rem 2rem;
+            min-height: 100vh;
+        }
 
-app.use(cors());
-app.use(express.json());
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.8rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .topbar h2 {
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin: 0;
+        }
+        .topbar .breadcrumb {
+            font-size: 0.85rem;
+            color: #6b7a8f;
+            background: none;
+            padding: 0;
+            margin: 0;
+        }
+        .topbar .breadcrumb span {
+            color: #1e293b;
+            font-weight: 500;
+        }
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .topbar-right .badge-dot {
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .topbar-right .user-info {
+            font-size: 0.9rem;
+            color: #334155;
+        }
 
-// ======================== Helpers ========================
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e9edf2;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+        }
+        .stat-card .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+        }
+        .stat-card .stat-icon.blue {
+            background: #e8f0fe;
+            color: #1a73e8;
+        }
+        .stat-card .stat-icon.green {
+            background: #e6f7ed;
+            color: #0b8f4c;
+        }
+        .stat-card .stat-icon.purple {
+            background: #f0ebff;
+            color: #7c3aed;
+        }
+        .stat-card .stat-icon.orange {
+            background: #fef3e2;
+            color: #d97706;
+        }
+        .stat-card .stat-icon.red {
+            background: #fde8e8;
+            color: #dc2626;
+        }
+        .stat-card .stat-icon.teal {
+            background: #e0f7fa;
+            color: #0d9488;
+        }
+        .stat-card .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0b1a30;
+            line-height: 1.2;
+        }
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            color: #6b7a8f;
+            font-weight: 500;
+        }
+        .stat-card .stat-change {
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 0.3rem;
+        }
+        .stat-card .stat-change.up {
+            color: #0b8f4c;
+        }
+        .stat-card .stat-change.down {
+            color: #dc2626;
+        }
 
-async function list(table, joinConfig = null) {
-  let query = supabase.from(table).select('*');
-  if (joinConfig) {
-    const { foreignKey, foreignTable, select, as } = joinConfig;
-    query = supabase.from(table).select(`*, ${foreignTable}!inner(${select})`);
-  }
-  const { data, error } = await query;
-  if (error) throw error;
-  if (joinConfig) {
-    const { foreignTable, select, as } = joinConfig;
-    return data.map(row => {
-      const joined = row[foreignTable];
-      if (joined) {
-        row[as] = joined[select];
-      }
-      delete row[foreignTable];
-      return row;
-    });
-  }
-  return data;
-}
+        .panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .panel.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-async function create(table, body) {
-  const { data, error } = await supabase.from(table).insert(body).select().single();
-  if (error) throw error;
-  return data;
-}
+        .panel .card {
+            border-radius: 16px;
+            border: 1px solid #e9edf2;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            background: #fff;
+            margin-bottom: 1.5rem;
+        }
+        .panel .card-header {
+            background: #fff;
+            border-bottom: 1px solid #e9edf2;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 1rem 1.25rem;
+            border-radius: 16px 16px 0 0 !important;
+        }
+        .panel .card-body {
+            padding: 1.25rem;
+        }
+        .panel .form-section {
+            background: #fafcff;
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e9eef4;
+            margin-bottom: 1.5rem;
+        }
+        .panel .table-responsive {
+            border-radius: 12px;
+            border: 1px solid #eef2f8;
+            overflow: hidden;
+        }
+        .panel .table th {
+            background: #f8faff;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .panel .table td {
+            vertical-align: middle;
+        }
+        .panel .stat-badge {
+            background: #eef4ff;
+            color: #1a3a6b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
 
-async function update(table, id, body) {
-  const pk = `${table.slice(0, -1)}_id`;
-  const { data, error } = await supabase.from(table).update(body).eq(pk, id).select().single();
-  if (error) throw error;
-  return data;
-}
+        .chart-container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.25rem;
+            border: 1px solid #e9edf2;
+            height: 100%;
+            min-height: 260px;
+        }
+        .chart-container canvas {
+            max-height: 220px;
+            width: 100% !important;
+        }
 
-async function remove(table, id) {
-  const pk = `${table.slice(0, -1)}_id`;
-  const { error } = await supabase.from(table).delete().eq(pk, id);
-  if (error) throw error;
-  return { success: true };
-}
+        .toast-container {
+            z-index: 9999;
+        }
 
-// ======================== API Routes ========================
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .hamburger {
+                display: flex !important;
+            }
+            .overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.4);
+                z-index: 999;
+            }
+            .overlay.show {
+                display: block;
+            }
+        }
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #1e293b;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+        }
 
-// 1. Shops
-app.get('/api/shops', async (req, res) => {
-  try {
-    const data = await list('shops');
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/shops', async (req, res) => {
-  try {
-    const data = await create('shops', req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/shops/:id', async (req, res) => {
-  try {
-    const data = await update('shops', req.params.id, req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.delete('/api/shops/:id', async (req, res) => {
-  try {
-    const data = await remove('shops', req.params.id);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+        .machine-list-card {
+            background: #f8faff;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-top: 0.75rem;
+            border: 1px solid #e9eef4;
+        }
+        .machine-preview-table {
+            font-size: 0.85rem;
+            margin-bottom: 0;
+        }
+        .machine-preview-table th {
+            background: #eef3f9;
+            font-weight: 600;
+            border-bottom: 2px solid #dce3ed;
+        }
+        .machine-preview-table td,
+        .machine-preview-table th {
+            padding: 0.3rem 0.5rem;
+            white-space: nowrap;
+        }
+        .machine-preview-container {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .clickable-row {
+            cursor: pointer;
+        }
+        .clickable-row:hover {
+            background: #d6e4f0 !important;
+        }
+        .selected-machines-list {
+            background: #f0f7ff;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cde0f0;
+        }
+        .delete-btn {
+            color: #b91c1c;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            color: #7f1d1d;
+        }
+        .edit-btn {
+            color: #1a3a6b;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            margin-right: 6px;
+        }
+        .edit-btn:hover {
+            color: #0f2a4f;
+        }
+        .form-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+        .btn-primary {
+            background: #1a3a6b;
+            border-color: #1a3a6b;
+        }
+        .btn-primary:hover {
+            background: #0f2a4f;
+            border-color: #0f2a4f;
+        }
 
-// 2. Operators
-app.get('/api/operators', async (req, res) => {
-  try {
-    const data = await list('operators', {
-      foreignKey: 'shop_id',
-      foreignTable: 'shops',
-      select: 'shop_name',
-      as: 'shop_name'
-    });
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/operators', async (req, res) => {
-  try {
-    const data = await create('operators', req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/operators/:id', async (req, res) => {
-  try {
-    const data = await update('operators', req.params.id, req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.delete('/api/operators/:id', async (req, res) => {
-  try {
-    const data = await remove('operators', req.params.id);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #2a4060;
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
 
-// 3. Machines
-app.get('/api/machines', async (req, res) => {
-  try {
-    const data = await list('machines', {
-      foreignKey: 'shop_id',
-      foreignTable: 'shops',
-      select: 'shop_name',
-      as: 'shop_name'
-    });
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/machines', async (req, res) => {
-  try {
-    const data = await create('machines', req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/machines/:id', async (req, res) => {
-  try {
-    const data = await update('machines', req.params.id, req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.delete('/api/machines/:id', async (req, res) => {
-  try {
-    const data = await remove('machines', req.params.id);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    <!-- ─── OVERLAY (mobile) ─── -->
+    <div class="overlay" id="overlay"></div>
 
-// 4. Projects
-app.get('/api/projects', async (req, res) => {
-  try {
-    const data = await list('projects');
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/projects', async (req, res) => {
-  try {
-    const data = await create('projects', req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/projects/:id', async (req, res) => {
-  try {
-    const data = await update('projects', req.params.id, req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.delete('/api/projects/:id', async (req, res) => {
-  try {
-    const data = await remove('projects', req.params.id);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    <!-- ─── SIDEBAR ─── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-industry"></i>
+            <div>
+                Bahir-Dar
+                <small>Factory Management</small>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-label">Overview</div>
+            <a class="nav-item active" data-panel="dashboard" onclick="showPanel('dashboard')"><i class="fas fa-th-large"></i> Dashboard</a>
 
-// 5. Assembly Parts
-app.get('/api/assembly-parts', async (req, res) => {
-  try {
-    const data = await list('assembly_parts', {
-      foreignKey: 'project_id',
-      foreignTable: 'projects',
-      select: 'project_name',
-      as: 'project_name'
-    });
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/assembly-parts', async (req, res) => {
-  try {
-    const data = await create('assembly_parts', req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/assembly-parts/:id', async (req, res) => {
-  try {
-    const data = await update('assembly_parts', req.params.id, req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.delete('/api/assembly-parts/:id', async (req, res) => {
-  try {
-    const data = await remove('assembly_parts', req.params.id);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+            <div class="nav-label">Setup</div>
+            <a class="nav-item" data-panel="shops" onclick="showPanel('shops')"><i class="fas fa-store"></i> Shops</a>
+            <a class="nav-item" data-panel="operators" onclick="showPanel('operators')"><i class="fas fa-user"></i> Operators</a>
+            <a class="nav-item" data-panel="machines" onclick="showPanel('machines')"><i class="fas fa-cogs"></i> Machines</a>
+            <a class="nav-item" data-panel="projects" onclick="showPanel('projects')"><i class="fas fa-tasks"></i> Projects</a>
+            <a class="nav-item" data-panel="parts" onclick="showPanel('parts')"><i class="fas fa-puzzle-piece"></i> Assembly Parts</a>
 
-// 6. Production Records (two joins)
-app.get('/api/production-records', async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from('production_records')
-      .select(`
-        *,
-        operators!inner(full_name),
-        shops!inner(shop_name)
-      `);
-    if (error) throw error;
-    const mapped = data.map(row => ({
-      ...row,
-      operator_name: row.operators?.full_name,
-      shop_name: row.shops?.shop_name,
-      operators: undefined,
-      shops: undefined
-    }));
-    res.json(mapped);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/production-records', async (req, res) => {
-  try {
-    const data = await create('production_records', req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/production-records/:id', async (req, res) => {
-  try {
-    const data = await update('production_records', req.params.id, req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.delete('/api/production-records/:id', async (req, res) => {
-  try {
-    const data = await remove('production_records', req.params.id);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+            <div class="nav-label">Production</div>
+            <a class="nav-item" data-panel="prod" onclick="showPanel('prod')"><i class="fas fa-clipboard-list"></i> Operator Records</a>
+            <a class="nav-item" data-panel="project-prod" onclick="showPanel('project-prod')"><i class="fas fa-chart-line"></i> Project Production</a>
+            <a class="nav-item" data-panel="machine-time" onclick="showPanel('machine-time')"><i class="fas fa-clock"></i> Machine Utilization</a>
 
-// 7. Project Production
-app.get('/api/project-production', async (req, res) => {
-  try {
-    const data = await list('project_production', {
-      foreignKey: 'project_id',
-      foreignTable: 'projects',
-      select: 'project_name',
-      as: 'project_name'
-    });
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/project-production', async (req, res) => {
-  try {
-    const data = await create('project_production', req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/project-production/:id', async (req, res) => {
-  try {
-    const data = await update('project_production', req.params.id, req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.delete('/api/project-production/:id', async (req, res) => {
-  try {
-    const data = await remove('project_production', req.params.id);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+            <div class="nav-label">Assembly Records</div>
+            <a class="nav-item" data-panel="assembly" onclick="showPanel('assembly')"><i class="fas fa-tools"></i> Assembly Records</a>
 
-// 8. Machine Time Registration
-app.get('/api/machine-time-reg', async (req, res) => {
-  try {
-    const data = await list('machine_time_reg', {
-      foreignKey: 'machine_id',
-      foreignTable: 'machines',
-      select: 'machine_name',
-      as: 'machine_name'
-    });
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/machine-time-reg', async (req, res) => {
-  try {
-    const data = await create('machine_time_reg', req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/machine-time-reg/:id', async (req, res) => {
-  try {
-    const data = await update('machine_time_reg', req.params.id, req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.delete('/api/machine-time-reg/:id', async (req, res) => {
-  try {
-    const data = await remove('machine_time_reg', req.params.id);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+            <div class="nav-label">Management</div>
+            <a class="nav-item" data-panel="issues" onclick="showPanel('issues')"><i class="fas fa-exclamation-triangle"></i> Issues</a>
+            <a class="nav-item" data-panel="plans" onclick="showPanel('plans')"><i class="fas fa-calendar-plus"></i> Plans</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
 
-// 9. Assembly Records
-app.get('/api/assembly-records', async (req, res) => {
-  try {
-    const data = await list('assembly_records', {
-      foreignKey: 'part_id',
-      foreignTable: 'assembly_parts',
-      select: 'part_name',
-      as: 'part_name'
-    });
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/assembly-records', async (req, res) => {
-  try {
-    const data = await create('assembly_records', req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/assembly-records/:id', async (req, res) => {
-  try {
-    const data = await update('assembly_records', req.params.id, req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.delete('/api/assembly-records/:id', async (req, res) => {
-  try {
-    const data = await remove('assembly_records', req.params.id);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    <!-- ─── MAIN CONTENT ─── -->
+    <main class="main-content" id="mainContent">
 
-// 10. Issues
-app.get('/api/issues', async (req, res) => {
-  try {
-    const data = await list('issues', {
-      foreignKey: 'affected_project_id',
-      foreignTable: 'projects',
-      select: 'project_name',
-      as: 'project_name'
-    });
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/issues', async (req, res) => {
-  try {
-    const data = await create('issues', req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/issues/:id', async (req, res) => {
-  try {
-    const data = await update('issues', req.params.id, req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.delete('/api/issues/:id', async (req, res) => {
-  try {
-    const data = await remove('issues', req.params.id);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+        <!-- TOP BAR -->
+        <div class="topbar">
+            <div>
+                <button class="hamburger" id="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <h2 id="pageTitle">Dashboard</h2>
+                <div class="breadcrumb">Bahir-Dar / <span id="breadcrumbPage">Overview</span></div>
+            </div>
+            <div class="topbar-right">
+                <span class="badge-dot"></span>
+                <span class="user-info"><i class="fas fa-user-circle me-1"></i> Admin</span>
+            </div>
+        </div>
 
-// 11. Plans
-app.get('/api/plans', async (req, res) => {
-  try {
-    const data = await list('plans');
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/plans', async (req, res) => {
-  try {
-    const data = await create('plans', req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/plans/:id', async (req, res) => {
-  try {
-    const data = await update('plans', req.params.id, req.body);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.delete('/api/plans/:id', async (req, res) => {
-  try {
-    const data = await remove('plans', req.params.id);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+        <!-- ─── TOAST CONTAINER ─── -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
 
-// ======================== Static Files & Fallback ========================
+        <!-- ─── PANELS ─── -->
 
-// Serve static files (index.html, CSS, JS, etc.) from the current directory
-app.use(express.static(path.join(__dirname)));
+        <!-- ========================================================== -->
+        <!-- DASHBOARD -->
+        <!-- ========================================================== -->
+        <div class="panel active" id="panel-dashboard">
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-store"></i></div>
+                        <div class="stat-number" id="dashShops">0</div>
+                        <div class="stat-label">Shops</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Active</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-user"></i></div>
+                        <div class="stat-number" id="dashOperators">0</div>
+                        <div class="stat-label">Operators</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Active</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-cogs"></i></div>
+                        <div class="stat-number" id="dashMachines">0</div>
+                        <div class="stat-label">Machines</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Operational</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon orange"><i class="fas fa-tasks"></i></div>
+                        <div class="stat-number" id="dashProjects">0</div>
+                        <div class="stat-label">Projects</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Active</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon red"><i class="fas fa-clipboard-list"></i></div>
+                        <div class="stat-number" id="dashRecords">0</div>
+                        <div class="stat-label">Operator Records</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> This week</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon teal"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="stat-number" id="dashIssues">0</div>
+                        <div class="stat-label">Issues</div>
+                        <div class="stat-change down"><i class="fas fa-arrow-down me-1"></i> Pending</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="chart-container">
+                        <h6 class="mb-3 fw-semibold"><i class="fas fa-chart-bar me-2"></i>Recent Performance (%)</h6>
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="chart-container">
+                        <h6 class="mb-3 fw-semibold"><i class="fas fa-chart-pie me-2"></i>Machine Utilization</h6>
+                        <canvas id="utilizationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-// Catch-all: for any request that hasn't been handled, send index.html
-// (This supports client‑side routing, e.g., if your HTML uses History API)
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+        <!-- ========================================================== -->
+        <!-- SHOPS -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-shops">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-store me-2 text-primary"></i>Shops</span>
+                    <span class="stat-badge" id="shop-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="form-section">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Shop</h6>
+                                <form id="form-shops">
+                                    <div class="mb-2">
+                                        <label class="form-label">Shop Name *</label>
+                                        <select class="form-select" name="shop_name" required id="shop-name-select">
+                                            <option value="">Select shop name…</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Shop Type (Category) *</label>
+                                        <select class="form-select" name="shop_type" required id="shop-type-select">
+                                            <option value="">Select a shop name first…</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Shop</button>
+                                </form>
+                                <div class="machine-list-card mt-3">
+                                    <small class="text-muted"><i class="fas fa-cogs me-1"></i> Machines of this type (click to select):</small>
+                                    <div id="machine-list-items" class="mt-1"><span class="text-muted" style="font-size:0.9rem;">Select a shop type to see machines</span></div>
+                                </div>
+                                <div class="selected-machines-list mt-3" id="selected-machines-list" style="display:none;">
+                                    <small class="text-muted"><i class="fas fa-check-circle me-1"></i> Selected (<span id="selected-count">0</span>):</small>
+                                    <div id="selected-machines-items" class="mt-1">
+                                        <table class="table table-sm table-bordered machine-preview-table">
+                                            <thead><tr><th>Code</th><th>Name</th><th>Category</th><th style="width:60px;">Action</th></tr></thead>
+                                            <tbody id="selected-machines-tbody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-shops">
+                                    <thead><tr><th>ID</th><th>Name</th><th>Type</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-shops"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-// ======================== Start Server ========================
+        <!-- ========================================================== -->
+        <!-- OPERATORS -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-operators">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-user me-2 text-primary"></i>Operators</span>
+                    <span class="stat-badge" id="operator-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="form-section">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Operator</h6>
+                                <form id="form-operators">
+                                    <div class="mb-2">
+                                        <label class="form-label">Shop *</label>
+                                        <select class="form-select" name="shop_id" required id="operator-shop-select">
+                                            <option value="">Select shop…</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Full Name *</label>
+                                        <select class="form-select" name="full_name" required id="operator-name-select">
+                                            <option value="">Select a shop first…</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2 form-check">
+                                        <input class="form-check-input" type="checkbox" name="is_active" value="true" checked />
+                                        <label class="form-check-label">Active</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Operator</button>
+                                </form>
+                                <div class="mt-3 small text-muted"><i class="fas fa-info-circle me-1"></i> Operator list from Excel.</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-operators">
+                                    <thead><tr><th>ID</th><th>Name</th><th>Shop</th><th>Active</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-operators"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-});
+        <!-- ========================================================== -->
+        <!-- MACHINES -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-machines">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-cogs me-2 text-primary"></i>Machines</span>
+                    <span class="stat-badge" id="machine-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="form-section">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Machine</h6>
+                                <form id="form-machines">
+                                    <div class="mb-2"><label class="form-label">Code *</label><input type="text" class="form-control" name="machine_code" required /></div>
+                                    <div class="mb-2"><label class="form-label">Name *</label><input type="text" class="form-control" name="machine_name" required /></div>
+                                    <div class="mb-2"><label class="form-label">Shop *</label><select class="form-select" name="shop_id" required id="machines-shop-select"><option value="">Select shop…</option></select></div>
+                                    <div class="mb-2"><label class="form-label">Category</label><input type="text" class="form-control" name="category" /></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Machine</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-machines">
+                                    <thead><tr><th>ID</th><th>Code</th><th>Name</th><th>Shop</th><th>Category</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-machines"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- PROJECTS -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-projects">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-tasks me-2 text-primary"></i>Projects</span>
+                    <span class="stat-badge" id="project-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="form-section">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Project</h6>
+                                <form id="form-projects">
+                                    <div class="mb-2"><label class="form-label">Project Name *</label><input type="text" class="form-control" name="project_name" required /></div>
+                                    <div class="mb-2"><label class="form-label">Category</label><input type="text" class="form-control" name="category" /></div>
+                                    <div class="mb-2 form-check"><input class="form-check-input" type="checkbox" name="is_active" value="true" checked /><label class="form-check-label">Active</label></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Project</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-projects">
+                                    <thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Active</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-projects"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- ASSEMBLY PARTS -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-parts">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-puzzle-piece me-2 text-primary"></i>Assembly Parts</span>
+                    <span class="stat-badge" id="part-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="form-section">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Part</h6>
+                                <form id="form-parts">
+                                    <div class="mb-2"><label class="form-label">Part Name *</label><input type="text" class="form-control" name="part_name" required /></div>
+                                    <div class="mb-2"><label class="form-label">Project</label><select class="form-select" name="project_id"><option value="">None</option></select></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Part</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-parts">
+                                    <thead><tr><th>ID</th><th>Name</th><th>Project</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-parts"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- OPERATOR RECORDS -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-prod">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-clipboard-list me-2 text-primary"></i>Operator Records</span>
+                    <span class="stat-badge" id="prod-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-5">
+                            <div class="form-section" style="max-height:600px; overflow-y:auto;">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Record</h6>
+                                <form id="form-prod">
+                                    <div class="mb-2">
+                                        <label class="form-label">Shop *</label>
+                                        <select class="form-select" name="shop_id" required id="prod-shop-select">
+                                            <option value="">Select shop…</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Operator *</label>
+                                        <select class="form-select" name="operator_id" required id="prod-operator-select">
+                                            <option value="">Select a shop first…</option>
+                                        </select>
+                                    </div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Week Start *</label><input type="date" class="form-control" name="week_start" required /></div><div class="col-6"><label class="form-label">Week End *</label><input type="date" class="form-control" name="week_end" required /></div></div>
+                                    <div class="mb-2"><label class="form-label">Planned Part</label><input type="text" class="form-control" name="planned_part" /></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Planned Qty</label><input type="number" class="form-control" name="planned_qty" /></div><div class="col-6"><label class="form-label">Planned Time</label><input type="number" step="0.01" class="form-control" name="planned_time" /></div></div>
+                                    <div class="mb-2"><label class="form-label">Actual Part</label><input type="text" class="form-control" name="actual_part" /></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Actual Qty</label><input type="number" class="form-control" name="actual_qty" /></div><div class="col-6"><label class="form-label">Actual Time</label><input type="number" step="0.01" class="form-control" name="actual_time" /></div></div>
+                                    <div class="mb-2"><label class="form-label">Performance %</label><input type="number" step="0.01" class="form-control" name="performance_pct" /></div>
+                                    <div class="mb-2"><label class="form-label">Delay Reason</label><input type="text" class="form-control" name="delay_reason" /></div>
+                                    <div class="row">
+                                        <div class="col-4"><label class="form-label">Sick Days</label><input type="number" class="form-control" name="sick_days" /></div>
+                                        <div class="col-4"><label class="form-label">Permission Days</label><input type="number" class="form-control" name="permission_days" /></div>
+                                        <div class="col-4 d-flex align-items-end"><div class="form-check"><input class="form-check-input" type="checkbox" name="lack_materials" value="true" /><label class="form-check-label">Lack Materials</label></div></div>
+                                    </div>
+                                    <div class="row mt-1">
+                                        <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="lack_tool_cutter" value="true" /><label class="form-check-label">Lack Tool/Cutter</label></div></div>
+                                        <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="design_problem" value="true" /><label class="form-check-label">Design Problem</label></div></div>
+                                        <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="machine_breakdown" value="true" /><label class="form-check-label">Machine Breakdown</label></div></div>
+                                    </div>
+                                    <div class="row mt-1">
+                                        <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="machine_sequence_issue" value="true" /><label class="form-check-label">Seq Issue</label></div></div>
+                                        <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="over_capacity" value="true" /><label class="form-check-label">Over Capacity</label></div></div>
+                                        <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="machine_occupied" value="true" /><label class="form-check-label">Machine Occupied</label></div></div>
+                                    </div>
+                                    <div class="mb-2"><div class="form-check"><input class="form-check-input" type="checkbox" name="own_problem" value="true" /><label class="form-check-label">Own Problem</label></div></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Record</button>
+                                </form>
+                                <div class="mt-3 small text-muted"><i class="fas fa-info-circle me-1"></i> Operators filtered by shop.</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-prod">
+                                    <thead><tr><th>ID</th><th>Operator</th><th>Week</th><th>Planned Qty</th><th>Actual Qty</th><th>Perf%</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-prod"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- PROJECT PRODUCTION -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-project-prod">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-chart-line me-2 text-primary"></i>Project Production</span>
+                    <span class="stat-badge" id="project-prod-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="form-section" style="max-height:600px; overflow-y:auto;">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Project Production</h6>
+                                <form id="form-project-prod">
+                                    <div class="mb-2"><label class="form-label">Project *</label><select class="form-select" name="project_id" required><option value="">Select project…</option></select></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Week Start *</label><input type="date" class="form-control" name="week_start" required /></div><div class="col-6"><label class="form-label">Week End *</label><input type="date" class="form-control" name="week_end" required /></div></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Planned Qty</label><input type="number" class="form-control" name="planned_qty" /></div><div class="col-6"><label class="form-label">Planned Time</label><input type="number" step="0.01" class="form-control" name="planned_time" /></div></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Actual Qty</label><input type="number" class="form-control" name="actual_qty" /></div><div class="col-6"><label class="form-label">Actual Time</label><input type="number" step="0.01" class="form-control" name="actual_time" /></div></div>
+                                    <div class="mb-2"><label class="form-label">Performance %</label><input type="number" step="0.01" class="form-control" name="performance_pct" /></div>
+                                    <div class="mb-2"><label class="form-label">Upto Date Qty</label><input type="number" class="form-control" name="upto_date_qty" /></div>
+                                    <div class="mb-2"><label class="form-label">Upto Date Time</label><input type="text" class="form-control" name="upto_date_time" /></div>
+                                    <div class="mb-2"><label class="form-label">Overall Perf %</label><input type="number" step="0.01" class="form-control" name="overall_perf_pct" /></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Record</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-project-prod">
+                                    <thead><tr><th>ID</th><th>Project</th><th>Week</th><th>Planned</th><th>Actual</th><th>Perf%</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-project-prod"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- MACHINE UTILIZATION -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-machine-time">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-clock me-2 text-primary"></i>Machine Utilization</span>
+                    <span class="stat-badge" id="machine-time-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="form-section">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Machine Time</h6>
+                                <form id="form-machine-time">
+                                    <div class="mb-2"><label class="form-label">Machine *</label><select class="form-select" name="machine_id" required><option value="">Select machine…</option></select></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Week Start *</label><input type="date" class="form-control" name="week_start" required /></div><div class="col-6"><label class="form-label">Week End *</label><input type="date" class="form-control" name="week_end" required /></div></div>
+                                    <div class="mb-2"><label class="form-label">Planned Time</label><input type="number" step="0.01" class="form-control" name="planned_time" /></div>
+                                    <div class="mb-2"><label class="form-label">Actual Time</label><input type="number" step="0.01" class="form-control" name="actual_time" /></div>
+                                    <div class="mb-2"><label class="form-label">Utilization %</label><input type="number" step="0.01" class="form-control" name="utilization_pct" /></div>
+                                    <div class="mb-2"><label class="form-label">Remark</label><input type="text" class="form-control" name="remark" /></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Record</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-machine-time">
+                                    <thead><tr><th>ID</th><th>Machine</th><th>Week</th><th>Planned</th><th>Actual</th><th>Util%</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-machine-time"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- ASSEMBLY RECORDS -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-assembly">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-tools me-2 text-primary"></i>Assembly Records</span>
+                    <span class="stat-badge" id="assembly-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-5">
+                            <div class="form-section" style="max-height:600px; overflow-y:auto;">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Assembly Record</h6>
+                                <form id="form-assembly">
+                                    <div class="mb-2"><label class="form-label">Part *</label><select class="form-select" name="part_id" required><option value="">Select part…</option></select></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Week Start *</label><input type="date" class="form-control" name="week_start" required /></div><div class="col-6"><label class="form-label">Week End *</label><input type="date" class="form-control" name="week_end" required /></div></div>
+                                    <div class="row"><div class="col-4"><label class="form-label">Assembling Planned</label><input type="number" step="0.01" class="form-control" name="assembling_planned" /></div><div class="col-4"><label class="form-label">Assembling WIP</label><input type="number" step="0.01" class="form-control" name="assembling_wip" /></div><div class="col-4"><label class="form-label">Assembling Completed</label><input type="number" step="0.01" class="form-control" name="assembling_completed" /></div></div>
+                                    <div class="row"><div class="col-4"><label class="form-label">Polishing Planned</label><input type="number" step="0.01" class="form-control" name="polishing_planned" /></div><div class="col-4"><label class="form-label">Polishing WIP</label><input type="number" step="0.01" class="form-control" name="polishing_wip" /></div><div class="col-4"><label class="form-label">Polishing Completed</label><input type="number" step="0.01" class="form-control" name="polishing_completed" /></div></div>
+                                    <div class="row"><div class="col-4"><label class="form-label">Painting Planned</label><input type="number" step="0.01" class="form-control" name="painting_planned" /></div><div class="col-4"><label class="form-label">Painting WIP</label><input type="number" step="0.01" class="form-control" name="painting_wip" /></div><div class="col-4"><label class="form-label">Painting Completed</label><input type="number" step="0.01" class="form-control" name="painting_completed" /></div></div>
+                                    <div class="mb-2"><label class="form-label">Upto Date Qty</label><input type="number" class="form-control" name="upto_date_qty" /></div>
+                                    <div class="mb-2"><label class="form-label">Performance %</label><input type="number" step="0.01" class="form-control" name="performance_pct" /></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Assembly Record</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-assembly">
+                                    <thead><tr><th>ID</th><th>Part</th><th>Week</th><th>Assem Comp</th><th>Polish Comp</th><th>Paint Comp</th><th>Perf%</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-assembly"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- ISSUES -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-issues">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-exclamation-triangle me-2 text-primary"></i>Issues</span>
+                    <span class="stat-badge" id="issue-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="form-section">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Issue</h6>
+                                <form id="form-issues">
+                                    <div class="row"><div class="col-6"><label class="form-label">Week Start *</label><input type="date" class="form-control" name="week_start" required /></div><div class="col-6"><label class="form-label">Week End *</label><input type="date" class="form-control" name="week_end" required /></div></div>
+                                    <div class="mb-2"><label class="form-label">Problem *</label><input type="text" class="form-control" name="problem" required /></div>
+                                    <div class="mb-2"><label class="form-label">Root Cause</label><input type="text" class="form-control" name="root_cause" /></div>
+                                    <div class="mb-2"><label class="form-label">Impact Level</label><input type="text" class="form-control" name="impact_level" /></div>
+                                    <div class="mb-2"><label class="form-label">Solution</label><input type="text" class="form-control" name="solution" /></div>
+                                    <div class="mb-2"><label class="form-label">Affected Project</label><select class="form-select" name="affected_project_id"><option value="">None</option></select></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Issue</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-issues">
+                                    <thead><tr><th>ID</th><th>Week</th><th>Problem</th><th>Root Cause</th><th>Impact</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-issues"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- PLANS (renamed from "Weekly Plans") -->
+        <!-- ========================================================== -->
+        <div class="panel" id="panel-plans">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-calendar-plus me-2 text-primary"></i>Plans</span>
+                    <span class="stat-badge" id="plan-count">0 records</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="form-section">
+                                <h6 class="mb-3"><i class="fas fa-plus-circle me-1"></i> Add Plan</h6>
+                                <form id="form-plans">
+                                    <div class="row"><div class="col-6"><label class="form-label">Week Start *</label><input type="date" class="form-control" name="week_start" required /></div><div class="col-6"><label class="form-label">Week End *</label><input type="date" class="form-control" name="week_end" required /></div></div>
+                                    <div class="mb-2"><label class="form-label">Plan Type *</label><select class="form-select" name="plan_type" required><option value="">Select…</option><option value="operator">Operator</option><option value="project">Project</option><option value="machine">Machine</option><option value="assembly">Assembly</option></select></div>
+                                    <div class="mb-2"><label class="form-label">Reference ID *</label><input type="number" class="form-control" name="reference_id" required /></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Planned Qty</label><input type="number" class="form-control" name="planned_qty" /></div><div class="col-6"><label class="form-label">Planned Time</label><input type="number" step="0.01" class="form-control" name="planned_time" /></div></div>
+                                    <div class="row"><div class="col-6"><label class="form-label">Target Qty</label><input type="number" class="form-control" name="target_qty" /></div><div class="col-6"><label class="form-label">Target Time</label><input type="number" step="0.01" class="form-control" name="target_time" /></div></div>
+                                    <div class="mb-2"><label class="form-label">Growth %</label><input type="number" step="0.01" class="form-control" name="growth_pct" /></div>
+                                    <div class="mb-2"><label class="form-label">Notes</label><input type="text" class="form-control" name="notes" /></div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save me-1"></i> Create Plan</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-plans">
+                                    <thead><tr><th>ID</th><th>Week</th><th>Type</th><th>Ref ID</th><th>Planned Qty</th><th>Target Qty</th><th>Growth%</th><th style="width:90px;">Actions</th></tr></thead>
+                                    <tbody id="tbody-plans"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- BOOTSTRAP JS -->
+    <!-- ============================================================ -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ============================================================ -->
+    <!-- MAIN APPLICATION JAVASCRIPT -->
+    <!-- ============================================================ -->
+    <script>
+        // ─── CONFIG ────────────────────────────────────────────────────────
+        // CHANGE THIS to your live backend URL when deployed
+        const API_BASE = '/api';  // Use relative path for same-origin deployment
+
+        // ─── EXCEL SHOP NAMES (8 shops from the Excel file) ──────────
+        const EXCEL_SHOP_NAMES = [
+            "Machine Shop",
+            "Fabrication Shop",
+            "Forging Pressing and Heat Treatment Machine Shop",
+            "Welding Shop",
+            "Polishing and Painting Shop",
+            "Assembly Shop",
+            "Casting Shop",
+            "Wood Shop"
+        ];
+
+        // ─── OPERATOR DATA FROM EXCEL ──────────────────────────────────
+        const operatorData = {
+            "Machine Shop": [
+                "Yilikal Anteneh", "Ayshshim Chalie", "Tsegaye Chanie", "Melkamu Yaregal",
+                "Dinkayehu Melese", "Mulu Abebe", "Birtukan Alamirew", "Meseret Mulugieta",
+                "Solomon Alemu", "Nahom solomon", "Getasew Dessie", "Takele Mekie",
+                "Tilaye Aragew", "Ayaliew worku", "Biniyam Misganaw", "Habtamu Afewerk",
+                "Oumer hasen", "Awol shiferaw", "getaneh deml", "Temesgen alem",
+                "werkagegnehu shewaye", "Kefialew wedaje", "Tesfanew gizte", "Wale Andualem"
+            ],
+            "Fabrication Shop": [
+                "Abdela Endeshaw", "Genet siltan", "Gojam Adamu", "Astray tsiga",
+                "Abayneh Tadese", "Birhanu Kindu", "Temesgen nibret", "Abrham ayana",
+                "Getachew"
+            ],
+            "Forging Pressing and Heat Treatment Machine Shop": [
+                "H/eyesus Abeje", "shumye guadu"
+            ],
+            "Welding Shop": [
+                "Abebaw Ager", "Wubit Abera", "Mesafint Afewerk", "Belachew Tesfahun",
+                "Chalachew Amogne", "Amlakie semani", "Adebabay Tawuneh", "Yenatfanta Kassa",
+                "Amelmal Delelew", "Netsanet Bazezew", "Samrawit Mekonnen", "Misganaw Tilahun",
+                "Mniyichil Tilahun", "Molalgn Ayinie", "Tarekegn wubu", "Yaregal mengesha",
+                "Azmeraw kebtie", "Melaku asimare", "Yitayew yilma", "Bekalu yaregal",
+                "Agumas bishaw", "Salamlak", "Zerihun dejen", "Bekele Kassa",
+                "Birtukan mola", "Esey alebachew", "Zemenu mola", "Belete siltanu",
+                "Hailye yismaw", "Metalgn getu", "Firehiwot t/mariam", "Zelalem melkamu",
+                "Ejigu bogale", "Andualem asresaw", "Nigusu bogale", "Smegnew alem",
+                "Zelalem aweke", "Wubshet abe", "Wasihun fente"
+            ],
+            "Polishing and Painting Shop": [
+                "Antehunegn Asres", "Metadel gietu", "Agumas Bishaw", "Mulu Tesfa",
+                "Addisu Koye", "Demelash", "Nigusie", "Yihenew Lakew",
+                "Minale Yechale", "Adisie Ewunetu", "Adgo Baye", "Zelalem Getnet",
+                "Yibeltal Dires", "yeshumnesh"
+            ],
+            "Assembly Shop": [
+                "Endalew Admasu", "Zemenu Yohannes", "Nigatu dires", "Yohannes Biazin",
+                "Birhanu demlew", "Temesgen alem", "Wale Andualem", "Habtamu manaye"
+            ],
+            "Casting Shop": [],
+            "Wood Shop": []
+        };
+
+        // ─── MAPPING: shop name → machine categories ──────────────────
+        const shopMachineMap = {
+            "Machine Shop": ["Lathe", "Milling", "Drilling", "Grinding", "CNC", "Honing", "Broaching", "EDM", "Wire Cutting",
+                "Slotting", "Gear Hobbing", "Bench Drill", "Pantograph"
+            ],
+            "Fabrication Shop": ["Shearing", "Bending", "Rolling", "Cutting", "Punching", "Plasma", "Laser", "Turret Punch",
+                "Water Jet"
+            ],
+            "Welding Shop": ["Arc Welding", "MIG Welding", "TIG Welding", "Spot Welding", "Submerged Arc"],
+            "Forging Pressing and Heat Treatment Machine Shop": ["Forging Press", "Heat Treatment", "Quenching", "Tempering",
+                "Induction", "Hammer", "Furnace", "Annealing"
+            ],
+            "Casting Shop": ["Sand Casting"],
+            "Wood Shop": [],
+            "Polishing and Painting Shop": ["Polishing", "Painting", "Blast", "Edging", "Cleaning"],
+            "Assembly Shop": ["Assembly", "Crimping", "Printing", "Press"]
+        };
+
+        // ─── EXCEL MACHINE DATA ──────────────────────────────────────
+        const excelDescriptions = [
+            "Power hack saw", "Medium duty lathe machine, Conventional", "CNC precision lathe machine",
+            "CNC heavy duty precision lathe machine", "Double column VTC", "Universal milling machine, conventional",
+            "CNC universal milling machine", "Hydraulic vertical slotting machine", "NC Horizontal milling machine",
+            "Electrical discharge machine EDM", "CNC wire cutting EDM Machine", "Pedestal grinding machine",
+            "Universal cylindrical grinding m/c", "Surface grinding machine", "CNC horizontal surface grinder",
+            "CNC external grinder machine", "CNC Cylindrical inside grinder machine", "5-axis CNC tool grinding machine",
+            "Radial drilling machine", "Deep hole drilling & boring", "Three axis gun and BTA drilling",
+            "Deep hole honing", "Vertical honing machine", "Pneumatic spot welding machine",
+            "MIG welding machine (CEMONT)", "TIG welding machine (KLYUE)", "Arc welding machine (CEMONT)",
+            "Submerged arc welding machine", "Heavy duty hydraulic shear machine", "Hydraulic sheet metal bending machine",
+            "CNC Hydraulic four roller Plate rolling", "Hydraulic combination shearing and punching machine",
+            "Automatic pipe bending machine", "Automatic profile bending machine", "Automatic tube pipe hole flame cutter",
+            "Gantry type CNC plasma metal cutting machine", "Hydraulic plate bending machine", "CNC laser cutting machine",
+            "Hydraulic CNC turret punch machine", "Pneumatic forging hammer machine", "Forging hydraulic press machine",
+            "Portable polishing machine", "Hydraulic press", "High pressure water jet cleaning machine",
+            "Automatic hose crimping machine", "Name plate printing machine", "Floor drilling machine",
+            "CNC hydraulic Guillotine shear", "100T Punching Machine", "160T punching Machine",
+            "Electrical Furnace and Annealing", "80T punching Machine", "400T four column hydraulic press",
+            "Blast and painting equipment", "150kg pneumatic hammer", "400kg pneumatic hammer",
+            "300T friction screw press", "630T forge rolling machine", "100T friction screw press",
+            "3m3 air press machine", "Polish machine", "Edging machine", "Ferrous sand casting plant",
+            "Non-ferrous sand casting plant", "gear hobbing", "CNC hand bench drill",
+            "Abrasive water jet cutting machine", "Pantograph Engraving Machine", "Tank End (dish head) Making Machine"
+        ];
+
+        function assignCategory(desc) {
+            const d = desc.toLowerCase();
+            if (d.includes('lathe')) return 'Lathe';
+            if (d.includes('milling')) return 'Milling';
+            if (d.includes('drill')) return 'Drilling';
+            if (d.includes('grinding') || d.includes('grinder')) return 'Grinding';
+            if (d.includes('cnc') && (d.includes('lathe') || d.includes('milling') || d.includes('grinder') || d.includes(
+                'wire') || d.includes('hand'))) return 'CNC';
+            if (d.includes('edm')) return 'EDM';
+            if (d.includes('wire cutting')) return 'Wire Cutting';
+            if (d.includes('slotting')) return 'Slotting';
+            if (d.includes('hobbing')) return 'Gear Hobbing';
+            if (d.includes('bench drill')) return 'Bench Drill';
+            if (d.includes('pantograph')) return 'Pantograph';
+            if (d.includes('honing')) return 'Honing';
+            if (d.includes('vtc')) return 'CNC';
+            if (d.includes('shear')) return 'Shearing';
+            if (d.includes('bending')) return 'Bending';
+            if (d.includes('rolling')) return 'Rolling';
+            if (d.includes('punch')) return 'Punching';
+            if (d.includes('plasma')) return 'Plasma';
+            if (d.includes('laser')) return 'Laser';
+            if (d.includes('turret punch')) return 'Turret Punch';
+            if (d.includes('water jet')) return 'Water Jet';
+            if (d.includes('flame cutter')) return 'Cutting';
+            if (d.includes('welding') || d.includes('mig') || d.includes('tig') || d.includes('arc') || d.includes(
+                'submerged')) {
+                if (d.includes('spot')) return 'Spot Welding';
+                if (d.includes('mig')) return 'MIG Welding';
+                if (d.includes('tig')) return 'TIG Welding';
+                if (d.includes('arc')) return 'Arc Welding';
+                if (d.includes('submerged')) return 'Submerged Arc';
+                return 'Arc Welding';
+            }
+            if (d.includes('forging') || d.includes('hammer') || d.includes('press') || d.includes('forge')) {
+                if (d.includes('hammer')) return 'Hammer';
+                if (d.includes('press')) return 'Forging Press';
+                return 'Forging Press';
+            }
+            if (d.includes('furnace') || d.includes('annealing') || d.includes('heat treatment') || d.includes('quenching') ||
+                d.includes('tempering') || d.includes('induction')) {
+                return 'Heat Treatment';
+            }
+            if (d.includes('casting')) return 'Sand Casting';
+            if (d.includes('polish') || d.includes('painting') || d.includes('blast') || d.includes('edging') || d.includes(
+                'cleaning')) {
+                if (d.includes('blast')) return 'Blast';
+                if (d.includes('polish')) return 'Polishing';
+                if (d.includes('painting')) return 'Painting';
+                if (d.includes('edging')) return 'Edging';
+                if (d.includes('cleaning')) return 'Cleaning';
+                return 'Polishing';
+            }
+            if (d.includes('crimping') || d.includes('printing') || d.includes('tank end')) {
+                return 'Assembly';
+            }
+            return 'Other';
+        }
+
+        const excelMachines = excelDescriptions.map((desc, idx) => {
+            const category = assignCategory(desc);
+            let shop = '';
+            for (const s in shopMachineMap) {
+                if (shopMachineMap[s].includes(category)) {
+                    shop = s;
+                    break;
+                }
+            }
+            if (!shop) shop = 'Other Shop';
+            return {
+                code: `EX-${String(idx+1).padStart(3,'0')}`,
+                name: desc,
+                category: category,
+                shop: shop
+            };
+        });
+
+        // ─── STATE ──────────────────────────────────────────────────────
+        let selectedMachines = [];
+        let allOperators = [];
+        let allShops = [];
+        let allMachines = [];
+        let performanceChart = null;
+        let utilizationChart = null;
+
+        // ─── HELPERS ──────────────────────────────────────────────────────
+        function getVal(id) { return document.getElementById(id); }
+
+        function showToast(message, type = 'success') {
+            const container = document.querySelector('.toast-container');
+            const bg = type === 'success' ? 'bg-success' : type === 'danger' ? 'bg-danger' : 'bg-warning';
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'danger' ? 'fa-exclamation-circle' :
+                'fa-info-circle';
+            const html = `<div class="toast align-items-center text-white ${bg} border-0 show" role="alert">
+                        <div class="d-flex"><div class="toast-body"><i class="fas ${icon} me-2"></i> ${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>
+                    </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+            setTimeout(() => { const toasts = container.querySelectorAll('.toast'); if (toasts.length) toasts[0].remove(); },
+                5000);
+        }
+
+        function apiFetch(endpoint, opts = {}) {
+            return fetch(`${API_BASE}${endpoint}`, {
+                ...opts,
+                headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+            }).then(r => r.json()).catch(() => {
+                return [];
+            });
+        }
+
+        function renderTable(tbodyId, data, rowFn) {
+            const tbody = getVal(tbodyId);
+            if (!tbody) return;
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="20" class="text-center text-muted py-3">No records found</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map(rowFn).join('');
+        }
+
+        function updateCount(elementId, data) {
+            const el = getVal(elementId);
+            if (el) el.textContent = (data && data.length) ? `${data.length} records` : '0 records';
+        }
+
+        function esc(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        // ─── POPULATE A DROPDOWN WITH EXCEL SHOP NAMES ──────────────
+        function populateExcelShopDropdown(selectElement, placeholderText = 'Select shop…') {
+            if (!selectElement) return;
+            const current = selectElement.value;
+            selectElement.innerHTML = `<option value="">${placeholderText}</option>`;
+            EXCEL_SHOP_NAMES.forEach(shop => {
+                const opt = document.createElement('option');
+                opt.value = shop;
+                opt.textContent = shop;
+                selectElement.appendChild(opt);
+            });
+            if (current && EXCEL_SHOP_NAMES.includes(current)) {
+                selectElement.value = current;
+            }
+        }
+
+        // ─── POPULATE SHOP TYPE DROPDOWN ──────────────────────────────
+        function populateShopType(shopName) {
+            const typeSelect = document.querySelector('#shop-type-select');
+            if (!typeSelect) return;
+            typeSelect.innerHTML = '';
+            if (!shopName || !shopMachineMap[shopName]) {
+                typeSelect.innerHTML = `<option value="">Select a shop name first…</option>`;
+                return;
+            }
+            const categories = shopMachineMap[shopName];
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Select machine category…';
+            typeSelect.appendChild(placeholder);
+            categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                typeSelect.appendChild(opt);
+            });
+            if (typeSelect.value) updateMachinePreview(typeSelect.value);
+            else updateMachinePreview(null);
+        }
+
+        // ─── MACHINE PREVIEW ──────────────────────────────────────────
+        function updateMachinePreview(category) {
+            const container = document.getElementById('machine-list-items');
+            if (!category) {
+                container.innerHTML = `<span class="text-muted" style="font-size:0.9rem;">Select a shop type to see machines</span>`;
+                return;
+            }
+            const filtered = excelMachines.filter(m => m.category.toLowerCase() === category.toLowerCase());
+            if (filtered.length === 0) {
+                container.innerHTML = `<span class="text-muted" style="font-size:0.9rem;">No machines found</span>`;
+                return;
+            }
+            let html = `<div class="machine-preview-container"><table class="table table-sm table-bordered machine-preview-table">
+                        <thead><tr><th>Code</th><th>Full Name</th><th>Category</th><th>Shop</th></tr></thead><tbody>`;
+            filtered.forEach(m => {
+                html += `<tr class="clickable-row" onclick="selectMachine('${m.code}')">
+                            <td>${esc(m.code)}</td><td>${esc(m.name)}</td><td>${esc(m.category)}</td><td>${esc(m.shop)}</td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            container.innerHTML = html;
+        }
+
+        // ─── SELECT / DESELECT MACHINES ──────────────────────────────
+        function selectMachine(code) {
+            const machine = excelMachines.find(m => m.code === code);
+            if (!machine) return;
+            if (selectedMachines.some(m => m.code === code)) {
+                showToast(`"${machine.name}" is already selected`, 'warning');
+                return;
+            }
+            selectedMachines.push(machine);
+            updateSelectedList();
+            showToast(`"${machine.name}" added to selection`, 'success');
+        }
+
+        function removeSelectedMachine(code) {
+            selectedMachines = selectedMachines.filter(m => m.code !== code);
+            updateSelectedList();
+            showToast('Machine removed from selection', 'info');
+        }
+
+        function updateSelectedList() {
+            const container = document.getElementById('selected-machines-list');
+            const tbody = document.getElementById('selected-machines-tbody');
+            const countSpan = document.getElementById('selected-count');
+            if (selectedMachines.length === 0) { container.style.display = 'none'; return; }
+            container.style.display = 'block';
+            countSpan.textContent = selectedMachines.length;
+            let html = '';
+            selectedMachines.forEach(m => {
+                html += `<tr><td>${esc(m.code)}</td><td>${esc(m.name)}</td><td>${esc(m.category)}</td>
+                        <td><button class="btn btn-sm btn-outline-danger" onclick="removeSelectedMachine('${m.code}')"><i class="fas fa-times"></i></button></td></tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // ─── OPERATOR DROPDOWN HELPERS ──────────────────────────────
+        function populateOperatorNames(shopName) {
+            const nameSelect = document.getElementById('operator-name-select');
+            if (!nameSelect) return;
+            nameSelect.innerHTML = '';
+            if (!shopName || !operatorData[shopName]) {
+                nameSelect.innerHTML = '<option value="">Select a shop first…</option>';
+                return;
+            }
+            const names = operatorData[shopName];
+            if (names.length === 0) {
+                nameSelect.innerHTML = '<option value="">No operators found for this shop</option>';
+                return;
+            }
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Select operator name…';
+            nameSelect.appendChild(placeholder);
+            names.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                nameSelect.appendChild(opt);
+            });
+        }
+
+        function filterProdOperators(shopName) {
+            const opSelect = document.getElementById('prod-operator-select');
+            if (!opSelect) return;
+            opSelect.innerHTML = '';
+            if (!shopName) {
+                opSelect.innerHTML = '<option value="">Select a shop first…</option>';
+                return;
+            }
+            const operators = operatorData[shopName] || [];
+            if (operators.length === 0) {
+                opSelect.innerHTML = '<option value="">No operators found</option>';
+                return;
+            }
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Select operator…';
+            opSelect.appendChild(placeholder);
+            operators.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                opSelect.appendChild(opt);
+            });
+        }
+
+        function refreshProdOperatorFilter() {
+            const prodShopSelect = document.getElementById('prod-shop-select');
+            if (prodShopSelect && prodShopSelect.value) {
+                filterProdOperators(prodShopSelect.value);
+            }
+        }
+
+        // ─── SIDEBAR NAVIGATION ──────────────────────────────────────────
+        function showPanel(panelId) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            const target = document.getElementById(`panel-${panelId}`);
+            if (target) target.classList.add('active');
+
+            document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
+            const navItem = document.querySelector(`.sidebar-nav .nav-item[data-panel="${panelId}"]`);
+            if (navItem) navItem.classList.add('active');
+
+            const titles = {
+                dashboard: 'Dashboard',
+                shops: 'Shops',
+                operators: 'Operators',
+                machines: 'Machines',
+                projects: 'Projects',
+                parts: 'Assembly Parts',
+                prod: 'Operator Records',
+                'project-prod': 'Project Production',
+                'machine-time': 'Machine Utilization',
+                assembly: 'Assembly Records',
+                issues: 'Issues',
+                plans: 'Plans'
+            };
+            document.getElementById('pageTitle').textContent = titles[panelId] || panelId;
+            document.getElementById('breadcrumbPage').textContent = titles[panelId] || panelId;
+
+            closeSidebar();
+
+            if (panelId === 'dashboard') {
+                setTimeout(updateDashboardCharts, 200);
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('overlay').classList.remove('show');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                showToast('Logging out...', 'info');
+            }
+        }
+
+        // ─── DASHBOARD CHARTS ──────────────────────────────────────────
+        function updateDashboardCharts() {
+            const perfCtx = document.getElementById('performanceChart')?.getContext('2d');
+            if (perfCtx) {
+                if (performanceChart) performanceChart.destroy();
+                performanceChart = new Chart(perfCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Record 1', 'Record 2', 'Record 3', 'Record 4', 'Record 5', 'Record 6'],
+                        datasets: [{
+                            label: 'Performance %',
+                            data: [90, 78, 85, 92, 70, 88],
+                            backgroundColor: ['#1a73e8', '#0b8f4c', '#7c3aed', '#d97706', '#dc2626', '#0d9488'],
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, grid: { color: '#f0f2f5' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            const utilCtx = document.getElementById('utilizationChart')?.getContext('2d');
+            if (utilCtx) {
+                if (utilizationChart) utilizationChart.destroy();
+                utilizationChart = new Chart(utilCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['In Use', 'Idle', 'Maintenance'],
+                        datasets: [{
+                            data: [65, 25, 10],
+                            backgroundColor: ['#1a73e8', '#e9edf2', '#dc2626'],
+                            borderWidth: 0,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true,
+                                    pointStyle: 'circle' } }
+                        },
+                        cutout: '65%',
+                    }
+                });
+            }
+        }
+
+        // ─── LOAD FUNCTIONS ──────────────────────────────────────────
+
+        async function loadShops() {
+            const res = await apiFetch('/shops');
+            allShops = res;
+            renderTable('tbody-shops', res, s =>
+                `<tr><td>${s.shop_id}</td><td>${esc(s.shop_name)}</td><td>${esc(s.shop_type)}</td>
+                    <td><button class="edit-btn" onclick="editShop(${s.shop_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteShop(${s.shop_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('shop-count', res);
+            document.getElementById('dashShops').textContent = res && res.length ? res.length : 0;
+
+            populateExcelShopDropdown(document.getElementById('shop-name-select'), 'Select shop name…');
+            populateExcelShopDropdown(document.getElementById('operator-shop-select'), 'Select shop…');
+            populateExcelShopDropdown(document.getElementById('machines-shop-select'), 'Select shop…');
+            populateExcelShopDropdown(document.getElementById('prod-shop-select'), 'Select shop…');
+
+            const shopNameSelect = document.getElementById('shop-name-select');
+            if (shopNameSelect) {
+                shopNameSelect.addEventListener('change', function() {
+                    populateShopType(this.value);
+                    updateMachinePreview(null);
+                });
+                if (shopNameSelect.value) {
+                    populateShopType(shopNameSelect.value);
+                }
+            }
+
+            const opShopSelect = document.getElementById('operator-shop-select');
+            if (opShopSelect) {
+                opShopSelect.addEventListener('change', function() {
+                    populateOperatorNames(this.value);
+                });
+                if (opShopSelect.value) {
+                    populateOperatorNames(opShopSelect.value);
+                }
+            }
+
+            const prodShopSelect = document.getElementById('prod-shop-select');
+            if (prodShopSelect) {
+                prodShopSelect.addEventListener('change', function() {
+                    filterProdOperators(this.value);
+                });
+                if (prodShopSelect.value) {
+                    filterProdOperators(prodShopSelect.value);
+                }
+            }
+        }
+
+        async function loadOperators() {
+            const res = await apiFetch('/operators');
+            allOperators = res;
+            renderTable('tbody-operators', res, o =>
+                `<tr><td>${o.operator_id}</td><td>${esc(o.full_name)}</td><td>${esc(o.shop_name || o.shop_id)}</td>
+                    <td>${o.is_active ? '✅' : '❌'}</td>
+                    <td><button class="edit-btn" onclick="editOperator(${o.operator_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteOperator(${o.operator_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('operator-count', res);
+            document.getElementById('dashOperators').textContent = res && res.length ? res.length : 0;
+            refreshProdOperatorFilter();
+        }
+
+        async function loadMachines() {
+            const res = await apiFetch('/machines');
+            allMachines = res;
+            renderTable('tbody-machines', res, m =>
+                `<tr><td>${m.machine_id}</td><td>${esc(m.machine_code)}</td><td>${esc(m.machine_name)}</td>
+                    <td>${esc(m.shop_name || m.shop_id)}</td><td>${esc(m.category)}</td>
+                    <td><button class="edit-btn" onclick="editMachine(${m.machine_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteMachine(${m.machine_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('machine-count', res);
+            document.getElementById('dashMachines').textContent = res && res.length ? res.length : 0;
+        }
+
+        async function loadProjects() {
+            const res = await apiFetch('/projects');
+            renderTable('tbody-projects', res, p =>
+                `<tr><td>${p.project_id}</td><td>${esc(p.project_name)}</td><td>${esc(p.category)}</td>
+                    <td>${p.is_active ? '✅' : '❌'}</td>
+                    <td><button class="edit-btn" onclick="editProject(${p.project_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteProject(${p.project_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('project-count', res);
+            populateSelect('form-parts [name="project_id"]', res, 'project_id', 'project_name');
+            populateSelect('form-project-prod [name="project_id"]', res, 'project_id', 'project_name');
+            populateSelect('form-issues [name="affected_project_id"]', res, 'project_id', 'project_name');
+            document.getElementById('dashProjects').textContent = res && res.length ? res.length : 0;
+        }
+
+        async function loadParts() {
+            const res = await apiFetch('/assembly-parts');
+            renderTable('tbody-parts', res, p =>
+                `<tr><td>${p.part_id}</td><td>${esc(p.part_name)}</td><td>${esc(p.project_name || p.project_id || '—')}</td>
+                    <td><button class="edit-btn" onclick="editPart(${p.part_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deletePart(${p.part_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('part-count', res);
+            populateSelect('form-assembly [name="part_id"]', res, 'part_id', 'part_name');
+        }
+
+        async function loadProdRecords() {
+            const res = await apiFetch('/production-records');
+            renderTable('tbody-prod', res, r =>
+                `<tr><td>${r.record_id}</td><td>${esc(r.operator_name || r.operator_id)}</td>
+                    <td>${r.week_start} – ${r.week_end}</td><td>${r.planned_qty ?? '—'}</td>
+                    <td>${r.actual_qty ?? '—'}</td><td>${r.performance_pct ?? '—'}</td>
+                    <td><button class="edit-btn" onclick="editProd(${r.record_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteProd(${r.record_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('prod-count', res);
+            document.getElementById('dashRecords').textContent = res && res.length ? res.length : 0;
+        }
+
+        async function loadProjectProd() {
+            const res = await apiFetch('/project-production');
+            renderTable('tbody-project-prod', res, p =>
+                `<tr><td>${p.prod_id}</td><td>${esc(p.project_name || p.project_id)}</td>
+                    <td>${p.week_start} – ${p.week_end}</td><td>${p.planned_qty ?? '—'}</td>
+                    <td>${p.actual_qty ?? '—'}</td><td>${p.performance_pct ?? '—'}</td>
+                    <td><button class="edit-btn" onclick="editProjectProd(${p.prod_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteProjectProd(${p.prod_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('project-prod-count', res);
+        }
+
+        async function loadMachineTime() {
+            const res = await apiFetch('/machine-time-reg');
+            renderTable('tbody-machine-time', res, m =>
+                `<tr><td>${m.reg_id}</td><td>${esc(m.machine_name || m.machine_id)}</td>
+                    <td>${m.week_start} – ${m.week_end}</td><td>${m.planned_time ?? '—'}</td>
+                    <td>${m.actual_time ?? '—'}</td><td>${m.utilization_pct ?? '—'}</td>
+                    <td><button class="edit-btn" onclick="editMachineTime(${m.reg_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteMachineTime(${m.reg_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('machine-time-count', res);
+        }
+
+        async function loadAssembly() {
+            const res = await apiFetch('/assembly-records');
+            renderTable('tbody-assembly', res, a =>
+                `<tr><td>${a.assembly_id}</td><td>${esc(a.part_name || a.part_id)}</td>
+                    <td>${a.week_start} – ${a.week_end}</td><td>${a.assembling_completed ?? '—'}</td>
+                    <td>${a.polishing_completed ?? '—'}</td><td>${a.painting_completed ?? '—'}</td>
+                    <td>${a.performance_pct ?? '—'}</td>
+                    <td><button class="edit-btn" onclick="editAssembly(${a.assembly_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteAssembly(${a.assembly_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('assembly-count', res);
+        }
+
+        async function loadIssues() {
+            const res = await apiFetch('/issues');
+            renderTable('tbody-issues', res, i =>
+                `<tr><td>${i.issue_id}</td><td>${i.week_start} – ${i.week_end}</td>
+                    <td>${esc(i.problem)}</td><td>${esc(i.root_cause)}</td><td>${esc(i.impact_level)}</td>
+                    <td><button class="edit-btn" onclick="editIssue(${i.issue_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteIssue(${i.issue_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('issue-count', res);
+            document.getElementById('dashIssues').textContent = res && res.length ? res.length : 0;
+        }
+
+        async function loadPlans() {
+            const res = await apiFetch('/plans');
+            renderTable('tbody-plans', res, p =>
+                `<tr><td>${p.plan_id}</td><td>${p.week_start} – ${p.week_end}</td>
+                    <td><span class="badge bg-secondary">${esc(p.plan_type)}</span></td>
+                    <td>${p.reference_id}</td><td>${p.planned_qty ?? '—'}</td>
+                    <td>${p.target_qty ?? '—'}</td><td>${p.growth_pct ?? '—'}</td>
+                    <td><button class="edit-btn" onclick="editPlan(${p.plan_id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deletePlan(${p.plan_id})"><i class="fas fa-trash"></i></button></td></tr>`
+            );
+            updateCount('plan-count', res);
+        }
+
+        // ─── FORM SUBMIT HANDLERS ──────────────────────────────────────
+
+        document.getElementById('form-shops').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            const res = await apiFetch('/shops', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Shop created successfully');
+            e.target.reset();
+            const typeSelect = document.getElementById('shop-type-select');
+            if (typeSelect) typeSelect.innerHTML = '<option value="">Select a shop name first…</option>';
+            loadShops();
+        });
+
+        document.getElementById('form-operators').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.is_active = data.is_active === 'true';
+            const shopName = data.shop_id;
+            const shopsRes = await apiFetch('/shops');
+            const shop = shopsRes.find(s => s.shop_name === shopName);
+            if (shop) {
+                data.shop_id = shop.shop_id;
+            } else {
+                showToast('Shop not found. Please create the shop first.', 'danger');
+                return;
+            }
+            const res = await apiFetch('/operators', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Operator created successfully');
+            e.target.reset();
+            const nameSelect = document.getElementById('operator-name-select');
+            if (nameSelect) nameSelect.innerHTML = '<option value="">Select a shop first…</option>';
+            loadOperators();
+        });
+
+        document.getElementById('form-machines').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            const res = await apiFetch('/machines', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Machine created');
+            e.target.reset();
+            loadMachines();
+        });
+
+        document.getElementById('form-projects').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.is_active = data.is_active === 'true';
+            const res = await apiFetch('/projects', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Project created');
+            e.target.reset();
+            loadProjects();
+        });
+
+        document.getElementById('form-parts').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.project_id = data.project_id ? parseInt(data.project_id) : null;
+            const res = await apiFetch('/assembly-parts', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Part created');
+            e.target.reset();
+            loadParts();
+        });
+
+        document.getElementById('form-prod').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            const boolFields = ['lack_materials', 'lack_tool_cutter', 'design_problem', 'machine_breakdown',
+                'machine_sequence_issue', 'over_capacity', 'machine_occupied', 'own_problem'
+            ];
+            boolFields.forEach(f => { data[f] = data[f] === 'true'; });
+            ['planned_qty', 'actual_qty', 'sick_days', 'permission_days'].forEach(f => { if (data[f]) data[f] = parseInt(
+                    data[f]); });
+            ['planned_time', 'actual_time', 'performance_pct'].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
+            const shopName = data.shop_id;
+            const operatorName = data.operator_id;
+            const shopsRes = await apiFetch('/shops');
+            const shop = shopsRes.find(s => s.shop_name === shopName);
+            if (!shop) {
+                showToast('Shop not found. Please create the shop first.', 'danger');
+                return;
+            }
+            data.shop_id = shop.shop_id;
+            const operatorsRes = await apiFetch('/operators');
+            const operator = operatorsRes.find(o => o.full_name === operatorName && o.shop_id === shop.shop_id);
+            if (!operator) {
+                showToast('Operator not found. Please create the operator first.', 'danger');
+                return;
+            }
+            data.operator_id = operator.operator_id;
+            const res = await apiFetch('/production-records', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Production record created');
+            e.target.reset();
+            const opSelect = document.getElementById('prod-operator-select');
+            if (opSelect) opSelect.innerHTML = '<option value="">Select a shop first…</option>';
+            refreshProdOperatorFilter();
+            loadProdRecords();
+        });
+
+        document.getElementById('form-project-prod').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.project_id = parseInt(data.project_id);
+            ['planned_qty', 'actual_qty', 'upto_date_qty'].forEach(f => { if (data[f]) data[f] = parseInt(data[f]); });
+            ['planned_time', 'actual_time', 'performance_pct', 'overall_perf_pct'].forEach(f => { if (data[f]) data[f] =
+                    parseFloat(data[f]); });
+            const res = await apiFetch('/project-production', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Project production record created');
+            e.target.reset();
+            loadProjectProd();
+        });
+
+        document.getElementById('form-machine-time').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.machine_id = parseInt(data.machine_id);
+            ['planned_time', 'actual_time', 'utilization_pct'].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
+            const res = await apiFetch('/machine-time-reg', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Machine time record created');
+            e.target.reset();
+            loadMachineTime();
+        });
+
+        document.getElementById('form-assembly').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.part_id = parseInt(data.part_id);
+            ['assembling_planned', 'assembling_wip', 'assembling_completed', 'polishing_planned', 'polishing_wip',
+                'polishing_completed', 'painting_planned', 'painting_wip', 'painting_completed', 'upto_date_qty',
+                'performance_pct'
+            ].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
+            const res = await apiFetch('/assembly-records', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Assembly record created');
+            e.target.reset();
+            loadAssembly();
+        });
+
+        document.getElementById('form-issues').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.affected_project_id = data.affected_project_id ? parseInt(data.affected_project_id) : null;
+            const res = await apiFetch('/issues', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Issue created');
+            e.target.reset();
+            loadIssues();
+        });
+
+        document.getElementById('form-plans').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            data.reference_id = parseInt(data.reference_id);
+            ['planned_qty', 'target_qty'].forEach(f => { if (data[f]) data[f] = parseInt(data[f]); });
+            ['planned_time', 'target_time', 'growth_pct'].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
+            const res = await apiFetch('/plans', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Plan created');
+            e.target.reset();
+            loadPlans();
+        });
+
+        // ─── DELETE & EDIT FUNCTIONS ──────────────────────────────────
+
+        function populateSelect(selector, data, valueKey, labelKey) {
+            const sel = document.querySelector(selector);
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">Select…</option>';
+            if (data && data.length) {
+                data.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item[valueKey];
+                    opt.textContent = item[labelKey] || item[valueKey];
+                    sel.appendChild(opt);
+                });
+            }
+            if (current) sel.value = current;
+        }
+
+        window.deleteShop = async (id) => { if (!confirm('Delete this shop?')) return; const res = await apiFetch(
+                `/shops/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Shop deleted');
+            loadShops(); };
+        window.editShop = async (id) => { const name = prompt('Enter new shop name:'); if (name === null) return; const type =
+                prompt('Enter new shop type (or leave blank):'); const res = await apiFetch(`/shops/${id}`, { method: 'PUT',
+                    body: JSON.stringify({ shop_name: name, shop_type: type || '' }) }); if (res && res.error) { showToast(
+                    res.error, 'danger'); return; } showToast('Shop updated');
+            loadShops(); };
+
+        window.deleteOperator = async (id) => { if (!confirm('Delete this operator?')) return; const res = await apiFetch(
+                `/operators/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Operator deleted');
+            loadOperators(); };
+        window.editOperator = async (id) => { const name = prompt('Enter new full name:'); if (name === null) return; const
+                active = confirm('Is this operator active? (OK = active, Cancel = inactive)'); const res = await apiFetch(
+                `/operators/${id}`, { method: 'PUT', body: JSON.stringify({ full_name: name, is_active: active }) }); if (
+                res && res.error) { showToast(res.error, 'danger'); return; } showToast('Operator updated');
+            loadOperators(); };
+
+        window.deleteMachine = async (id) => { if (!confirm('Delete this machine?')) return; const res = await apiFetch(
+                `/machines/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Machine deleted');
+            loadMachines(); };
+        window.editMachine = async (id) => { const code = prompt('Enter new machine code:'); if (code === null) return; const
+                name = prompt('Enter new machine name:'); if (name === null) return; const cat = prompt(
+                'Enter new category (or blank):'); const res = await apiFetch(`/machines/${id}`, { method: 'PUT',
+                    body: JSON.stringify({ machine_code: code, machine_name: name, category: cat || '' }) }); if (res &&
+                    res.error) { showToast(res.error, 'danger'); return; } showToast('Machine updated');
+            loadMachines(); };
+
+        window.deleteProject = async (id) => { if (!confirm('Delete this project?')) return; const res = await apiFetch(
+                `/projects/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Project deleted');
+            loadProjects(); };
+        window.editProject = async (id) => { const name = prompt('Enter new project name:'); if (name === null) return; const
+                cat = prompt('Enter new category (or blank):'); const active = confirm(
+                'Is this project active? (OK = active, Cancel = inactive)'); const res = await apiFetch(`/projects/${id}`,
+                { method: 'PUT', body: JSON.stringify({ project_name: name, category: cat || '', is_active: active }) });
+            if (res && res.error) { showToast(res.error, 'danger'); return; } showToast('Project updated');
+            loadProjects(); };
+
+        window.deletePart = async (id) => { if (!confirm('Delete this part?')) return; const res = await apiFetch(
+                `/assembly-parts/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger');
+                return; } showToast('Part deleted');
+            loadParts(); };
+        window.editPart = async (id) => { const name = prompt('Enter new part name:'); if (name === null) return; const res =
+                await apiFetch(`/assembly-parts/${id}`, { method: 'PUT', body: JSON.stringify({ part_name: name }) }); if (
+                res && res.error) { showToast(res.error, 'danger'); return; } showToast('Part updated');
+            loadParts(); };
+
+        window.deleteProd = async (id) => { if (!confirm('Delete this record?')) return; const res = await apiFetch(
+                `/production-records/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger');
+                return; } showToast('Record deleted');
+            loadProdRecords(); };
+        window.editProd = async (id) => { const qty = prompt('Enter new actual qty:'); if (qty === null) return; const res =
+                await apiFetch(`/production-records/${id}`, { method: 'PUT', body: JSON.stringify({ actual_qty: parseInt(
+                        qty) }) }); if (res && res.error) { showToast(res.error, 'danger'); return; } showToast(
+                'Record updated');
+            loadProdRecords(); };
+
+        window.deleteProjectProd = async (id) => { if (!confirm('Delete this record?')) return; const res = await apiFetch(
+                `/project-production/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger');
+                return; } showToast('Record deleted');
+            loadProjectProd(); };
+        window.editProjectProd = async (id) => { const qty = prompt('Enter new actual qty:'); if (qty === null) return; const
+                res = await apiFetch(`/project-production/${id}`, { method: 'PUT', body: JSON.stringify({ actual_qty: parseInt(
+                        qty) }) }); if (res && res.error) { showToast(res.error, 'danger'); return; } showToast(
+                'Record updated');
+            loadProjectProd(); };
+
+        window.deleteMachineTime = async (id) => { if (!confirm('Delete this record?')) return; const res = await apiFetch(
+                `/machine-time-reg/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger');
+                return; } showToast('Record deleted');
+            loadMachineTime(); };
+        window.editMachineTime = async (id) => { const util = prompt('Enter new utilization %:'); if (util === null) return;
+            const res = await apiFetch(`/machine-time-reg/${id}`, { method: 'PUT', body: JSON.stringify({ utilization_pct: parseFloat(
+                        util) }) }); if (res && res.error) { showToast(res.error, 'danger'); return; } showToast(
+                'Record updated');
+            loadMachineTime(); };
+
+        window.deleteAssembly = async (id) => { if (!confirm('Delete this assembly record?')) return; const res = await
+                apiFetch(`/assembly-records/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error,
+                    'danger'); return; } showToast('Assembly record deleted');
+            loadAssembly(); };
+        window.editAssembly = async (id) => { const perf = prompt('Enter new performance %:'); if (perf === null) return; const
+                res = await apiFetch(`/assembly-records/${id}`, { method: 'PUT', body: JSON.stringify({ performance_pct: parseFloat(
+                        perf) }) }); if (res && res.error) { showToast(res.error, 'danger'); return; } showToast(
+                'Assembly record updated');
+            loadAssembly(); };
+
+        window.deleteIssue = async (id) => { if (!confirm('Delete this issue?')) return; const res = await apiFetch(
+                `/issues/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Issue deleted');
+            loadIssues(); };
+        window.editIssue = async (id) => { const sol = prompt('Enter new solution:'); if (sol === null) return; const res =
+                await apiFetch(`/issues/${id}`, { method: 'PUT', body: JSON.stringify({ solution: sol }) }); if (res &&
+                    res.error) { showToast(res.error, 'danger'); return; } showToast('Issue updated');
+            loadIssues(); };
+
+        window.deletePlan = async (id) => { if (!confirm('Delete this plan?')) return; const res = await apiFetch(
+                `/plans/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
+            showToast('Plan deleted');
+            loadPlans(); };
+        window.editPlan = async (id) => { const notes = prompt('Enter new notes:'); if (notes === null) return; const res =
+                await apiFetch(`/plans/${id}`, { method: 'PUT', body: JSON.stringify({ notes }) }); if (res && res.error) {
+                showToast(res.error, 'danger'); return; } showToast('Plan updated');
+            loadPlans(); };
+
+        // ─── INIT ──────────────────────────────────────────────────────
+        async function init() {
+            await loadShops();
+            await loadOperators();
+            await loadMachines();
+            await loadProjects();
+            await loadParts();
+            await loadProdRecords();
+            await loadProjectProd();
+            await loadMachineTime();
+            await loadAssembly();
+            await loadIssues();
+            await loadPlans();
+
+            setTimeout(updateDashboardCharts, 300);
+
+            document.getElementById('overlay')?.addEventListener('click', closeSidebar);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+</body>
+</html>
