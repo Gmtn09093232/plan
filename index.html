@@ -1058,7 +1058,10 @@
     <!-- ============================================================ -->
     <script>
         // ─── CONFIG ────────────────────────────────────────────────────────
-        const API_BASE = 'http://localhost:3000/api';
+        // CHANGE THIS to your live backend URL when deployed
+        // For local development: 'http://localhost:3000/api'
+        // For Render: 'https://your-backend.onrender.com/api'
+        const API_BASE = 'https://plan-1-v42y.onrender.com/api';  // <-- UPDATE THIS
 
         // ─── EXCEL SHOP NAMES (8 shops from the Excel file) ──────────
         const EXCEL_SHOP_NAMES = [
@@ -1267,7 +1270,10 @@
             return fetch(`${API_BASE}${endpoint}`, {
                 ...opts,
                 headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
-            }).then(r => r.json());
+            }).then(r => r.json()).catch(() => {
+                // If the API is down, return empty array to avoid breaking the UI
+                return [];
+            });
         }
 
         function renderTable(tbodyId, data, rowFn) {
@@ -1301,7 +1307,6 @@
                 opt.textContent = shop;
                 selectElement.appendChild(opt);
             });
-            // If the current value is in the list, reselect it
             if (current && EXCEL_SHOP_NAMES.includes(current)) {
                 selectElement.value = current;
             }
@@ -1397,6 +1402,10 @@
                 return;
             }
             const names = operatorData[shopName];
+            if (names.length === 0) {
+                nameSelect.innerHTML = '<option value="">No operators found for this shop</option>';
+                return;
+            }
             const placeholder = document.createElement('option');
             placeholder.value = '';
             placeholder.textContent = 'Select operator name…';
@@ -1557,7 +1566,7 @@
                         <button class="delete-btn" onclick="deleteShop(${s.shop_id})"><i class="fas fa-trash"></i></button></td></tr>`
             );
             updateCount('shop-count', res);
-            document.getElementById('dashShops').textContent = res ? res.length : 0;
+            document.getElementById('dashShops').textContent = res && res.length ? res.length : 0;
 
             // ─── Populate all shop dropdowns with Excel shop names ───
             populateExcelShopDropdown(document.getElementById('shop-name-select'), 'Select shop name…');
@@ -1572,7 +1581,10 @@
                     populateShopType(this.value);
                     updateMachinePreview(null);
                 });
-                if (shopNameSelect.value) populateShopType(shopNameSelect.value);
+                // Trigger initial population if a value is set
+                if (shopNameSelect.value) {
+                    populateShopType(shopNameSelect.value);
+                }
             }
 
             const opShopSelect = document.getElementById('operator-shop-select');
@@ -1580,7 +1592,9 @@
                 opShopSelect.addEventListener('change', function() {
                     populateOperatorNames(this.value);
                 });
-                if (opShopSelect.value) populateOperatorNames(opShopSelect.value);
+                if (opShopSelect.value) {
+                    populateOperatorNames(opShopSelect.value);
+                }
             }
 
             const prodShopSelect = document.getElementById('prod-shop-select');
@@ -1588,7 +1602,9 @@
                 prodShopSelect.addEventListener('change', function() {
                     filterProdOperators(this.value);
                 });
-                if (prodShopSelect.value) filterProdOperators(prodShopSelect.value);
+                if (prodShopSelect.value) {
+                    filterProdOperators(prodShopSelect.value);
+                }
             }
         }
 
@@ -1602,7 +1618,7 @@
                         <button class="delete-btn" onclick="deleteOperator(${o.operator_id})"><i class="fas fa-trash"></i></button></td></tr>`
             );
             updateCount('operator-count', res);
-            document.getElementById('dashOperators').textContent = res ? res.length : 0;
+            document.getElementById('dashOperators').textContent = res && res.length ? res.length : 0;
             refreshProdOperatorFilter();
         }
 
@@ -1616,7 +1632,7 @@
                         <button class="delete-btn" onclick="deleteMachine(${m.machine_id})"><i class="fas fa-trash"></i></button></td></tr>`
             );
             updateCount('machine-count', res);
-            document.getElementById('dashMachines').textContent = res ? res.length : 0;
+            document.getElementById('dashMachines').textContent = res && res.length ? res.length : 0;
         }
 
         async function loadProjects() {
@@ -1631,7 +1647,7 @@
             populateSelect('form-parts [name="project_id"]', res, 'project_id', 'project_name');
             populateSelect('form-project-prod [name="project_id"]', res, 'project_id', 'project_name');
             populateSelect('form-issues [name="affected_project_id"]', res, 'project_id', 'project_name');
-            document.getElementById('dashProjects').textContent = res ? res.length : 0;
+            document.getElementById('dashProjects').textContent = res && res.length ? res.length : 0;
         }
 
         async function loadParts() {
@@ -1655,7 +1671,7 @@
                         <button class="delete-btn" onclick="deleteProd(${r.record_id})"><i class="fas fa-trash"></i></button></td></tr>`
             );
             updateCount('prod-count', res);
-            document.getElementById('dashRecords').textContent = res ? res.length : 0;
+            document.getElementById('dashRecords').textContent = res && res.length ? res.length : 0;
         }
 
         async function loadProjectProd() {
@@ -1704,7 +1720,7 @@
                         <button class="delete-btn" onclick="deleteIssue(${i.issue_id})"><i class="fas fa-trash"></i></button></td></tr>`
             );
             updateCount('issue-count', res);
-            document.getElementById('dashIssues').textContent = res ? res.length : 0;
+            document.getElementById('dashIssues').textContent = res && res.length ? res.length : 0;
         }
 
         async function loadPlans() {
@@ -1722,13 +1738,12 @@
 
         // ─── FORM SUBMIT HANDLERS ──────────────────────────────────────
 
-        // Shops
         document.getElementById('form-shops').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
             const data = Object.fromEntries(fd);
             const res = await apiFetch('/shops', { method: 'POST', body: JSON.stringify(data) });
-            if (res.error) { showToast(res.error, 'danger'); return; }
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Shop created successfully');
             e.target.reset();
             const typeSelect = document.getElementById('shop-type-select');
@@ -1736,7 +1751,6 @@
             loadShops();
         });
 
-        // Operators
         document.getElementById('form-operators').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1752,7 +1766,7 @@
                 return;
             }
             const res = await apiFetch('/operators', { method: 'POST', body: JSON.stringify(data) });
-            if (res.error) { showToast(res.error, 'danger'); return; }
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Operator created successfully');
             e.target.reset();
             const nameSelect = document.getElementById('operator-name-select');
@@ -1760,45 +1774,41 @@
             loadOperators();
         });
 
-        // Machines
         document.getElementById('form-machines').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
             const data = Object.fromEntries(fd);
             const res = await apiFetch('/machines', { method: 'POST', body: JSON.stringify(data) });
-            if (res.error) { showToast(res.error, 'danger'); return; }
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Machine created');
             e.target.reset();
             loadMachines();
         });
 
-        // Projects
         document.getElementById('form-projects').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
             const data = Object.fromEntries(fd);
             data.is_active = data.is_active === 'true';
             const res = await apiFetch('/projects', { method: 'POST', body: JSON.stringify(data) });
-            if (res.error) { showToast(res.error, 'danger'); return; }
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Project created');
             e.target.reset();
             loadProjects();
         });
 
-        // Parts
         document.getElementById('form-parts').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
             const data = Object.fromEntries(fd);
             data.project_id = data.project_id ? parseInt(data.project_id) : null;
             const res = await apiFetch('/assembly-parts', { method: 'POST', body: JSON.stringify(data) });
-            if (res.error) { showToast(res.error, 'danger'); return; }
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Part created');
             e.target.reset();
             loadParts();
         });
 
-        // Production Records
         document.getElementById('form-prod').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1810,7 +1820,6 @@
             ['planned_qty', 'actual_qty', 'sick_days', 'permission_days'].forEach(f => { if (data[f]) data[f] = parseInt(
                     data[f]); });
             ['planned_time', 'actual_time', 'performance_pct'].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
-            // data.shop_id is the shop name, data.operator_id is the operator name
             const shopName = data.shop_id;
             const operatorName = data.operator_id;
             const shopsRes = await apiFetch('/shops');
@@ -1820,7 +1829,6 @@
                 return;
             }
             data.shop_id = shop.shop_id;
-            // Find operator by name in the operators list
             const operatorsRes = await apiFetch('/operators');
             const operator = operatorsRes.find(o => o.full_name === operatorName && o.shop_id === shop.shop_id);
             if (!operator) {
@@ -1829,7 +1837,7 @@
             }
             data.operator_id = operator.operator_id;
             const res = await apiFetch('/production-records', { method: 'POST', body: JSON.stringify(data) });
-            if (res.error) { showToast(res.error, 'danger'); return; }
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Production record created');
             e.target.reset();
             const opSelect = document.getElementById('prod-operator-select');
@@ -1838,7 +1846,6 @@
             loadProdRecords();
         });
 
-        // Project Production
         document.getElementById('form-project-prod').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1848,13 +1855,12 @@
             ['planned_time', 'actual_time', 'performance_pct', 'overall_perf_pct'].forEach(f => { if (data[f]) data[f] =
                     parseFloat(data[f]); });
             const res = await apiFetch('/project-production', { method: 'POST', body: JSON.stringify(data) });
-            if (res.error) { showToast(res.error, 'danger'); return; }
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Project production record created');
             e.target.reset();
             loadProjectProd();
         });
 
-        // Machine Time
         document.getElementById('form-machine-time').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1862,13 +1868,12 @@
             data.machine_id = parseInt(data.machine_id);
             ['planned_time', 'actual_time', 'utilization_pct'].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
             const res = await apiFetch('/machine-time-reg', { method: 'POST', body: JSON.stringify(data) });
-            if (res.error) { showToast(res.error, 'danger'); return; }
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Machine time record created');
             e.target.reset();
             loadMachineTime();
         });
 
-        // Assembly
         document.getElementById('form-assembly').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1879,26 +1884,24 @@
                 'performance_pct'
             ].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
             const res = await apiFetch('/assembly-records', { method: 'POST', body: JSON.stringify(data) });
-            if (res.error) { showToast(res.error, 'danger'); return; }
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Assembly record created');
             e.target.reset();
             loadAssembly();
         });
 
-        // Issues
         document.getElementById('form-issues').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
             const data = Object.fromEntries(fd);
             data.affected_project_id = data.affected_project_id ? parseInt(data.affected_project_id) : null;
             const res = await apiFetch('/issues', { method: 'POST', body: JSON.stringify(data) });
-            if (res.error) { showToast(res.error, 'danger'); return; }
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Issue created');
             e.target.reset();
             loadIssues();
         });
 
-        // Plans
         document.getElementById('form-plans').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(e.target);
@@ -1907,7 +1910,7 @@
             ['planned_qty', 'target_qty'].forEach(f => { if (data[f]) data[f] = parseInt(data[f]); });
             ['planned_time', 'target_time', 'growth_pct'].forEach(f => { if (data[f]) data[f] = parseFloat(data[f]); });
             const res = await apiFetch('/plans', { method: 'POST', body: JSON.stringify(data) });
-            if (res.error) { showToast(res.error, 'danger'); return; }
+            if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Plan created');
             e.target.reset();
             loadPlans();
@@ -1932,109 +1935,112 @@
         }
 
         window.deleteShop = async (id) => { if (!confirm('Delete this shop?')) return; const res = await apiFetch(
-                `/shops/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
+                `/shops/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Shop deleted');
             loadShops(); };
         window.editShop = async (id) => { const name = prompt('Enter new shop name:'); if (name === null) return; const type =
                 prompt('Enter new shop type (or leave blank):'); const res = await apiFetch(`/shops/${id}`, { method: 'PUT',
-                    body: JSON.stringify({ shop_name: name, shop_type: type || '' }) }); if (res.error) { showToast(res
-                    .error, 'danger'); return; } showToast('Shop updated');
+                    body: JSON.stringify({ shop_name: name, shop_type: type || '' }) }); if (res && res.error) { showToast(
+                    res.error, 'danger'); return; } showToast('Shop updated');
             loadShops(); };
 
         window.deleteOperator = async (id) => { if (!confirm('Delete this operator?')) return; const res = await apiFetch(
-                `/operators/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
+                `/operators/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Operator deleted');
             loadOperators(); };
         window.editOperator = async (id) => { const name = prompt('Enter new full name:'); if (name === null) return; const
                 active = confirm('Is this operator active? (OK = active, Cancel = inactive)'); const res = await apiFetch(
                 `/operators/${id}`, { method: 'PUT', body: JSON.stringify({ full_name: name, is_active: active }) }); if (
-                res.error) { showToast(res.error, 'danger'); return; } showToast('Operator updated');
+                res && res.error) { showToast(res.error, 'danger'); return; } showToast('Operator updated');
             loadOperators(); };
 
         window.deleteMachine = async (id) => { if (!confirm('Delete this machine?')) return; const res = await apiFetch(
-                `/machines/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
+                `/machines/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Machine deleted');
             loadMachines(); };
         window.editMachine = async (id) => { const code = prompt('Enter new machine code:'); if (code === null) return; const
                 name = prompt('Enter new machine name:'); if (name === null) return; const cat = prompt(
                 'Enter new category (or blank):'); const res = await apiFetch(`/machines/${id}`, { method: 'PUT',
-                    body: JSON.stringify({ machine_code: code, machine_name: name, category: cat || '' }) }); if (res
-                    .error) { showToast(res.error, 'danger'); return; } showToast('Machine updated');
+                    body: JSON.stringify({ machine_code: code, machine_name: name, category: cat || '' }) }); if (res &&
+                    res.error) { showToast(res.error, 'danger'); return; } showToast('Machine updated');
             loadMachines(); };
 
         window.deleteProject = async (id) => { if (!confirm('Delete this project?')) return; const res = await apiFetch(
-                `/projects/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
+                `/projects/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Project deleted');
             loadProjects(); };
         window.editProject = async (id) => { const name = prompt('Enter new project name:'); if (name === null) return; const
                 cat = prompt('Enter new category (or blank):'); const active = confirm(
                 'Is this project active? (OK = active, Cancel = inactive)'); const res = await apiFetch(`/projects/${id}`,
                 { method: 'PUT', body: JSON.stringify({ project_name: name, category: cat || '', is_active: active }) });
-            if (res.error) { showToast(res.error, 'danger'); return; } showToast('Project updated');
+            if (res && res.error) { showToast(res.error, 'danger'); return; } showToast('Project updated');
             loadProjects(); };
 
         window.deletePart = async (id) => { if (!confirm('Delete this part?')) return; const res = await apiFetch(
-                `/assembly-parts/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
-            showToast('Part deleted');
+                `/assembly-parts/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger');
+                return; } showToast('Part deleted');
             loadParts(); };
         window.editPart = async (id) => { const name = prompt('Enter new part name:'); if (name === null) return; const res =
                 await apiFetch(`/assembly-parts/${id}`, { method: 'PUT', body: JSON.stringify({ part_name: name }) }); if (
-                res.error) { showToast(res.error, 'danger'); return; } showToast('Part updated');
+                res && res.error) { showToast(res.error, 'danger'); return; } showToast('Part updated');
             loadParts(); };
 
         window.deleteProd = async (id) => { if (!confirm('Delete this record?')) return; const res = await apiFetch(
-                `/production-records/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
-            showToast('Record deleted');
+                `/production-records/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger');
+                return; } showToast('Record deleted');
             loadProdRecords(); };
         window.editProd = async (id) => { const qty = prompt('Enter new actual qty:'); if (qty === null) return; const res =
                 await apiFetch(`/production-records/${id}`, { method: 'PUT', body: JSON.stringify({ actual_qty: parseInt(
-                        qty) }) }); if (res.error) { showToast(res.error, 'danger'); return; } showToast('Record updated');
+                        qty) }) }); if (res && res.error) { showToast(res.error, 'danger'); return; } showToast(
+                'Record updated');
             loadProdRecords(); };
 
         window.deleteProjectProd = async (id) => { if (!confirm('Delete this record?')) return; const res = await apiFetch(
-                `/project-production/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
-            showToast('Record deleted');
+                `/project-production/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger');
+                return; } showToast('Record deleted');
             loadProjectProd(); };
         window.editProjectProd = async (id) => { const qty = prompt('Enter new actual qty:'); if (qty === null) return; const
                 res = await apiFetch(`/project-production/${id}`, { method: 'PUT', body: JSON.stringify({ actual_qty: parseInt(
-                        qty) }) }); if (res.error) { showToast(res.error, 'danger'); return; } showToast('Record updated');
+                        qty) }) }); if (res && res.error) { showToast(res.error, 'danger'); return; } showToast(
+                'Record updated');
             loadProjectProd(); };
 
         window.deleteMachineTime = async (id) => { if (!confirm('Delete this record?')) return; const res = await apiFetch(
-                `/machine-time-reg/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
-            showToast('Record deleted');
+                `/machine-time-reg/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger');
+                return; } showToast('Record deleted');
             loadMachineTime(); };
         window.editMachineTime = async (id) => { const util = prompt('Enter new utilization %:'); if (util === null) return;
             const res = await apiFetch(`/machine-time-reg/${id}`, { method: 'PUT', body: JSON.stringify({ utilization_pct: parseFloat(
-                        util) }) }); if (res.error) { showToast(res.error, 'danger'); return; } showToast('Record updated');
+                        util) }) }); if (res && res.error) { showToast(res.error, 'danger'); return; } showToast(
+                'Record updated');
             loadMachineTime(); };
 
         window.deleteAssembly = async (id) => { if (!confirm('Delete this assembly record?')) return; const res = await
-                apiFetch(`/assembly-records/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger');
-                return; } showToast('Assembly record deleted');
+                apiFetch(`/assembly-records/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error,
+                    'danger'); return; } showToast('Assembly record deleted');
             loadAssembly(); };
         window.editAssembly = async (id) => { const perf = prompt('Enter new performance %:'); if (perf === null) return; const
                 res = await apiFetch(`/assembly-records/${id}`, { method: 'PUT', body: JSON.stringify({ performance_pct: parseFloat(
-                        perf) }) }); if (res.error) { showToast(res.error, 'danger'); return; } showToast(
+                        perf) }) }); if (res && res.error) { showToast(res.error, 'danger'); return; } showToast(
                 'Assembly record updated');
             loadAssembly(); };
 
         window.deleteIssue = async (id) => { if (!confirm('Delete this issue?')) return; const res = await apiFetch(
-                `/issues/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
+                `/issues/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Issue deleted');
             loadIssues(); };
         window.editIssue = async (id) => { const sol = prompt('Enter new solution:'); if (sol === null) return; const res =
-                await apiFetch(`/issues/${id}`, { method: 'PUT', body: JSON.stringify({ solution: sol }) }); if (res.error) {
-                showToast(res.error, 'danger'); return; } showToast('Issue updated');
+                await apiFetch(`/issues/${id}`, { method: 'PUT', body: JSON.stringify({ solution: sol }) }); if (res &&
+                    res.error) { showToast(res.error, 'danger'); return; } showToast('Issue updated');
             loadIssues(); };
 
         window.deletePlan = async (id) => { if (!confirm('Delete this plan?')) return; const res = await apiFetch(
-                `/plans/${id}`, { method: 'DELETE' }); if (res.error) { showToast(res.error, 'danger'); return; }
+                `/plans/${id}`, { method: 'DELETE' }); if (res && res.error) { showToast(res.error, 'danger'); return; }
             showToast('Plan deleted');
             loadPlans(); };
         window.editPlan = async (id) => { const notes = prompt('Enter new notes:'); if (notes === null) return; const res =
-                await apiFetch(`/plans/${id}`, { method: 'PUT', body: JSON.stringify({ notes }) }); if (res.error) { showToast(
-                    res.error, 'danger'); return; } showToast('Plan updated');
+                await apiFetch(`/plans/${id}`, { method: 'PUT', body: JSON.stringify({ notes }) }); if (res && res.error) {
+                showToast(res.error, 'danger'); return; } showToast('Plan updated');
             loadPlans(); };
 
         // ─── INIT ──────────────────────────────────────────────────────
@@ -2053,15 +2059,24 @@
 
             setTimeout(updateDashboardCharts, 300);
 
-            // Populate operator names if a shop is pre-selected
-            const opShopSelect = document.getElementById('operator-shop-select');
-            if (opShopSelect && opShopSelect.value) {
-                populateOperatorNames(opShopSelect.value);
-            }
-
-            refreshProdOperatorFilter();
-
             document.getElementById('overlay')?.addEventListener('click', closeSidebar);
+
+            // Additional safety: repopulate dropdowns after a short delay
+            setTimeout(() => {
+                populateExcelShopDropdown(document.getElementById('shop-name-select'), 'Select shop name…');
+                populateExcelShopDropdown(document.getElementById('operator-shop-select'), 'Select shop…');
+                populateExcelShopDropdown(document.getElementById('machines-shop-select'), 'Select shop…');
+                populateExcelShopDropdown(document.getElementById('prod-shop-select'), 'Select shop…');
+                // Re-apply event listeners if needed
+                const opShopSelect = document.getElementById('operator-shop-select');
+                if (opShopSelect && opShopSelect.value) {
+                    populateOperatorNames(opShopSelect.value);
+                }
+                const prodShopSelect = document.getElementById('prod-shop-select');
+                if (prodShopSelect && prodShopSelect.value) {
+                    filterProdOperators(prodShopSelect.value);
+                }
+            }, 500);
         }
 
         document.addEventListener('DOMContentLoaded', init);
