@@ -475,7 +475,7 @@
 
             <div class="nav-label">Management</div>
             <a class="nav-item" data-panel="issues" onclick="showPanel('issues')"><i class="fas fa-exclamation-triangle"></i> Issues</a>
-            <a class="nav-item" data-panel="plans" onclick="showPanel('plans')"><i class="fas fa-calendar-plus"></i> Weekly Plans</a>
+            <a class="nav-item" data-panel="plans" onclick="showPanel('plans')"><i class="fas fa-calendar-plus"></i> Plans</a>
         </nav>
         <div class="sidebar-footer">
             <a class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -1008,12 +1008,12 @@
         </div>
 
         <!-- ========================================================== -->
-        <!-- WEEKLY PLANS -->
+        <!-- PLANS (renamed from "Weekly Plans") -->
         <!-- ========================================================== -->
         <div class="panel" id="panel-plans">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-calendar-plus me-2 text-primary"></i>Weekly Plans</span>
+                    <span><i class="fas fa-calendar-plus me-2 text-primary"></i>Plans</span>
                     <span class="stat-badge" id="plan-count">0 records</span>
                 </div>
                 <div class="card-body">
@@ -1059,9 +1059,7 @@
     <script>
         // ─── CONFIG ────────────────────────────────────────────────────────
         // CHANGE THIS to your live backend URL when deployed
-        // For local development: 'http://localhost:3000/api'
-        // For Render: 'https://your-backend.onrender.com/api'
-        const API_BASE = 'https://plan-1-v42y.onrender.com/api';  // <-- UPDATE THIS
+        const API_BASE = '/api';  // Use relative path for same-origin deployment
 
         // ─── EXCEL SHOP NAMES (8 shops from the Excel file) ──────────
         const EXCEL_SHOP_NAMES = [
@@ -1271,7 +1269,6 @@
                 ...opts,
                 headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
             }).then(r => r.json()).catch(() => {
-                // If the API is down, return empty array to avoid breaking the UI
                 return [];
             });
         }
@@ -1472,7 +1469,7 @@
                 'machine-time': 'Machine Utilization',
                 assembly: 'Assembly Records',
                 issues: 'Issues',
-                plans: 'Weekly Plans'
+                plans: 'Plans'
             };
             document.getElementById('pageTitle').textContent = titles[panelId] || panelId;
             document.getElementById('breadcrumbPage').textContent = titles[panelId] || panelId;
@@ -1568,20 +1565,17 @@
             updateCount('shop-count', res);
             document.getElementById('dashShops').textContent = res && res.length ? res.length : 0;
 
-            // ─── Populate all shop dropdowns with Excel shop names ───
             populateExcelShopDropdown(document.getElementById('shop-name-select'), 'Select shop name…');
             populateExcelShopDropdown(document.getElementById('operator-shop-select'), 'Select shop…');
             populateExcelShopDropdown(document.getElementById('machines-shop-select'), 'Select shop…');
             populateExcelShopDropdown(document.getElementById('prod-shop-select'), 'Select shop…');
 
-            // ─── Event listeners ──────────────────────────────────────
             const shopNameSelect = document.getElementById('shop-name-select');
             if (shopNameSelect) {
                 shopNameSelect.addEventListener('change', function() {
                     populateShopType(this.value);
                     updateMachinePreview(null);
                 });
-                // Trigger initial population if a value is set
                 if (shopNameSelect.value) {
                     populateShopType(shopNameSelect.value);
                 }
@@ -2060,23 +2054,6 @@
             setTimeout(updateDashboardCharts, 300);
 
             document.getElementById('overlay')?.addEventListener('click', closeSidebar);
-
-            // Additional safety: repopulate dropdowns after a short delay
-            setTimeout(() => {
-                populateExcelShopDropdown(document.getElementById('shop-name-select'), 'Select shop name…');
-                populateExcelShopDropdown(document.getElementById('operator-shop-select'), 'Select shop…');
-                populateExcelShopDropdown(document.getElementById('machines-shop-select'), 'Select shop…');
-                populateExcelShopDropdown(document.getElementById('prod-shop-select'), 'Select shop…');
-                // Re-apply event listeners if needed
-                const opShopSelect = document.getElementById('operator-shop-select');
-                if (opShopSelect && opShopSelect.value) {
-                    populateOperatorNames(opShopSelect.value);
-                }
-                const prodShopSelect = document.getElementById('prod-shop-select');
-                if (prodShopSelect && prodShopSelect.value) {
-                    filterProdOperators(prodShopSelect.value);
-                }
-            }, 500);
         }
 
         document.addEventListener('DOMContentLoaded', init);
