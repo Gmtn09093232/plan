@@ -11,97 +11,433 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; display: flex; min-height: 100vh; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            min-height: 100vh;
+        }
 
-        .sidebar { width: 260px; background: #0b1a30; color: #fff; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 1000; transition: transform 0.3s ease; overflow-y: auto; }
-        .sidebar-brand { padding: 1.5rem 1.25rem; font-size: 1.3rem; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
-        .sidebar-brand i { font-size: 1.6rem; color: #4a9eff; }
-        .sidebar-brand span { color: #fff; }
-        .sidebar-brand small { font-weight: 400; font-size: 0.7rem; color: #8a9bb5; display: block; margin-top: 2px; }
-        .sidebar-nav { flex: 1; padding: 1rem 0; }
-        .sidebar-nav .nav-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: #6a7f9e; padding: 0.5rem 1.5rem; margin-top: 0.5rem; font-weight: 600; }
-        .sidebar-nav .nav-item { display: flex; align-items: center; padding: 0.6rem 1.5rem; color: #b0c4de; text-decoration: none; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; gap: 12px; font-size: 0.9rem; }
-        .sidebar-nav .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
-        .sidebar-nav .nav-item.active { background: rgba(74,158,255,0.15); color: #4a9eff; border-left-color: #4a9eff; }
-        .sidebar-nav .nav-item i { width: 20px; text-align: center; font-size: 1rem; }
-        .sidebar-footer { padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); }
-        .sidebar-footer .nav-item { color: #b0c4de; text-decoration: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 0.5rem 0; font-size: 0.9rem; transition: color 0.2s; }
-        .sidebar-footer .nav-item:hover { color: #fff; }
-        .sidebar-footer .nav-item i { width: 20px; text-align: center; }
+        .sidebar {
+            width: 260px;
+            background: #0b1a30;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar-brand {
+            padding: 1.5rem 1.25rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar-brand i {
+            font-size: 1.6rem;
+            color: #4a9eff;
+        }
+        .sidebar-brand span {
+            color: #fff;
+        }
+        .sidebar-brand small {
+            font-weight: 400;
+            font-size: 0.7rem;
+            color: #8a9bb5;
+            display: block;
+            margin-top: 2px;
+        }
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+        }
+        .sidebar-nav .nav-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6a7f9e;
+            padding: 0.5rem 1.5rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 1.5rem;
+            color: #b0c4de;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+        .sidebar-nav .nav-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+        .sidebar-nav .nav-item.active {
+            background: rgba(74, 158, 255, 0.15);
+            color: #4a9eff;
+            border-left-color: #4a9eff;
+        }
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .sidebar-footer .nav-item {
+            color: #b0c4de;
+            text-decoration: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .sidebar-footer .nav-item:hover {
+            color: #fff;
+        }
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
 
-        .main-content { margin-left: 260px; flex: 1; padding: 1.5rem 2rem 2rem 2rem; min-height: 100vh; }
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 1.5rem 2rem 2rem 2rem;
+            min-height: 100vh;
+        }
 
-        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem; }
-        .topbar h2 { font-weight: 600; font-size: 1.5rem; color: #1e293b; margin: 0; }
-        .topbar .breadcrumb { font-size: 0.85rem; color: #6b7a8f; background: none; padding: 0; margin: 0; }
-        .topbar .breadcrumb span { color: #1e293b; font-weight: 500; }
-        .topbar-right { display: flex; align-items: center; gap: 1rem; }
-        .topbar-right .badge-dot { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; display: inline-block; }
-        .topbar-right .user-info { font-size: 0.9rem; color: #334155; }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.8rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .topbar h2 {
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin: 0;
+        }
+        .topbar .breadcrumb {
+            font-size: 0.85rem;
+            color: #6b7a8f;
+            background: none;
+            padding: 0;
+            margin: 0;
+        }
+        .topbar .breadcrumb span {
+            color: #1e293b;
+            font-weight: 500;
+        }
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .topbar-right .badge-dot {
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .topbar-right .user-info {
+            font-size: 0.9rem;
+            color: #334155;
+        }
 
-        .stat-card { background: #fff; border-radius: 16px; padding: 1.25rem 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e9edf2; transition: transform 0.2s, box-shadow 0.2s; height: 100%; }
-        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.07); }
-        .stat-card .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 0.75rem; }
-        .stat-card .stat-icon.blue { background: #e8f0fe; color: #1a73e8; }
-        .stat-card .stat-icon.green { background: #e6f7ed; color: #0b8f4c; }
-        .stat-card .stat-icon.purple { background: #f0ebff; color: #7c3aed; }
-        .stat-card .stat-icon.orange { background: #fef3e2; color: #d97706; }
-        .stat-card .stat-icon.red { background: #fde8e8; color: #dc2626; }
-        .stat-card .stat-icon.teal { background: #e0f7fa; color: #0d9488; }
-        .stat-card .stat-number { font-size: 1.8rem; font-weight: 700; color: #0b1a30; line-height: 1.2; }
-        .stat-card .stat-label { font-size: 0.85rem; color: #6b7a8f; font-weight: 500; }
-        .stat-card .stat-change { font-size: 0.8rem; font-weight: 500; margin-top: 0.3rem; }
-        .stat-card .stat-change.up { color: #0b8f4c; }
-        .stat-card .stat-change.down { color: #dc2626; }
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e9edf2;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+        }
+        .stat-card .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+        }
+        .stat-card .stat-icon.blue {
+            background: #e8f0fe;
+            color: #1a73e8;
+        }
+        .stat-card .stat-icon.green {
+            background: #e6f7ed;
+            color: #0b8f4c;
+        }
+        .stat-card .stat-icon.purple {
+            background: #f0ebff;
+            color: #7c3aed;
+        }
+        .stat-card .stat-icon.orange {
+            background: #fef3e2;
+            color: #d97706;
+        }
+        .stat-card .stat-icon.red {
+            background: #fde8e8;
+            color: #dc2626;
+        }
+        .stat-card .stat-icon.teal {
+            background: #e0f7fa;
+            color: #0d9488;
+        }
+        .stat-card .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0b1a30;
+            line-height: 1.2;
+        }
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            color: #6b7a8f;
+            font-weight: 500;
+        }
+        .stat-card .stat-change {
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 0.3rem;
+        }
+        .stat-card .stat-change.up {
+            color: #0b8f4c;
+        }
+        .stat-card .stat-change.down {
+            color: #dc2626;
+        }
 
-        .panel { display: none; animation: fadeIn 0.3s ease; }
-        .panel.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .panel.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-        .panel .card { border-radius: 16px; border: 1px solid #e9edf2; box-shadow: 0 1px 3px rgba(0,0,0,0.04); background: #fff; margin-bottom: 1.5rem; }
-        .panel .card-header { background: #fff; border-bottom: 1px solid #e9edf2; font-weight: 600; font-size: 1rem; padding: 1rem 1.25rem; border-radius: 16px 16px 0 0 !important; }
-        .panel .card-body { padding: 1.25rem; }
-        .panel .form-section { background: #fafcff; padding: 1.2rem 1.5rem; border-radius: 12px; border: 1px solid #e9eef4; margin-bottom: 1.5rem; }
-        .panel .table-responsive { border-radius: 12px; border: 1px solid #eef2f8; overflow: hidden; }
-        .panel .table th { background: #f8faff; border-bottom: 2px solid #dee2e6; }
-        .panel .table td { vertical-align: middle; }
-        .panel .stat-badge { background: #eef4ff; color: #1a3a6b; padding: 0.25rem 0.75rem; border-radius: 30px; font-size: 0.8rem; font-weight: 500; }
+        .panel .card {
+            border-radius: 16px;
+            border: 1px solid #e9edf2;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            background: #fff;
+            margin-bottom: 1.5rem;
+        }
+        .panel .card-header {
+            background: #fff;
+            border-bottom: 1px solid #e9edf2;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 1rem 1.25rem;
+            border-radius: 16px 16px 0 0 !important;
+        }
+        .panel .card-body {
+            padding: 1.25rem;
+        }
+        .panel .form-section {
+            background: #fafcff;
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e9eef4;
+            margin-bottom: 1.5rem;
+        }
+        .panel .table-responsive {
+            border-radius: 12px;
+            border: 1px solid #eef2f8;
+            overflow: hidden;
+        }
+        .panel .table th {
+            background: #f8faff;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .panel .table td {
+            vertical-align: middle;
+        }
+        .panel .stat-badge {
+            background: #eef4ff;
+            color: #1a3a6b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
 
-        .chart-container { background: #fff; border-radius: 16px; padding: 1.25rem; border: 1px solid #e9edf2; height: 100%; min-height: 260px; }
-        .chart-container canvas { max-height: 220px; width: 100% !important; }
+        .chart-container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.25rem;
+            border: 1px solid #e9edf2;
+            height: 100%;
+            min-height: 260px;
+        }
+        .chart-container canvas {
+            max-height: 220px;
+            width: 100% !important;
+        }
 
-        .toast-container { z-index: 9999; }
+        .toast-container {
+            z-index: 9999;
+        }
 
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); width: 280px; }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 1rem; }
-            .hamburger { display: flex !important; }
-            .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; }
-            .overlay.show { display: block; }
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .hamburger {
+                display: flex !important;
+            }
+            .overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.4);
+                z-index: 999;
+            }
+            .overlay.show {
+                display: block;
+            }
         }
-        .hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: #1e293b; padding: 0.25rem 0.5rem; cursor: pointer; }
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #1e293b;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+        }
 
-        .machine-list-card { background: #f8faff; border-radius: 10px; padding: 0.75rem 1rem; margin-top: 0.75rem; border: 1px solid #e9eef4; }
-        .machine-preview-table { font-size: 0.85rem; margin-bottom: 0; }
-        .machine-preview-table th { background: #eef3f9; font-weight: 600; border-bottom: 2px solid #dce3ed; }
-        .machine-preview-table td, .machine-preview-table th { padding: 0.3rem 0.5rem; white-space: nowrap; }
-        .machine-preview-container { max-height: 200px; overflow-y: auto; }
-        .clickable-row { cursor: pointer; }
-        .clickable-row:hover { background: #d6e4f0 !important; }
-        .selected-machines-list { background: #f0f7ff; border-radius: 10px; padding: 0.75rem 1rem; border: 1px solid #cde0f0; }
-        .delete-btn { color: #b91c1c; background: transparent; border: none; cursor: pointer; }
-        .delete-btn:hover { color: #7f1d1d; }
-        .edit-btn { color: #1a3a6b; background: transparent; border: none; cursor: pointer; margin-right: 6px; }
-        .edit-btn:hover { color: #0f2a4f; }
-        .form-label { font-weight: 500; font-size: 0.9rem; color: #1e293b; }
-        .btn-primary { background: #1a3a6b; border-color: #1a3a6b; }
-        .btn-primary:hover { background: #0f2a4f; border-color: #0f2a4f; }
+        .machine-list-card {
+            background: #f8faff;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-top: 0.75rem;
+            border: 1px solid #e9eef4;
+        }
+        .machine-preview-table {
+            font-size: 0.85rem;
+            margin-bottom: 0;
+        }
+        .machine-preview-table th {
+            background: #eef3f9;
+            font-weight: 600;
+            border-bottom: 2px solid #dce3ed;
+        }
+        .machine-preview-table td,
+        .machine-preview-table th {
+            padding: 0.3rem 0.5rem;
+            white-space: nowrap;
+        }
+        .machine-preview-container {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .clickable-row {
+            cursor: pointer;
+        }
+        .clickable-row:hover {
+            background: #d6e4f0 !important;
+        }
+        .selected-machines-list {
+            background: #f0f7ff;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cde0f0;
+        }
+        .delete-btn {
+            color: #b91c1c;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            color: #7f1d1d;
+        }
+        .edit-btn {
+            color: #1a3a6b;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            margin-right: 6px;
+        }
+        .edit-btn:hover {
+            color: #0f2a4f;
+        }
+        .form-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+        .btn-primary {
+            background: #1a3a6b;
+            border-color: #1a3a6b;
+        }
+        .btn-primary:hover {
+            background: #0f2a4f;
+            border-color: #0f2a4f;
+        }
 
-        .sidebar::-webkit-scrollbar { width: 4px; }
-        .sidebar::-webkit-scrollbar-thumb { background: #2a4060; border-radius: 4px; }
-        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #2a4060;
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
     </style>
 </head>
 <body>
@@ -172,16 +508,68 @@
         <!-- ========================================================== -->
         <div class="panel active" id="panel-dashboard">
             <div class="row g-4 mb-4">
-                <div class="col-xl-3 col-lg-6 col-md-6"><div class="stat-card"><div class="stat-icon blue"><i class="fas fa-store"></i></div><div class="stat-number" id="dashShops">0</div><div class="stat-label">Shops</div><div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Active</div></div></div>
-                <div class="col-xl-3 col-lg-6 col-md-6"><div class="stat-card"><div class="stat-icon green"><i class="fas fa-user"></i></div><div class="stat-number" id="dashOperators">0</div><div class="stat-label">Operators</div><div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Active</div></div></div>
-                <div class="col-xl-3 col-lg-6 col-md-6"><div class="stat-card"><div class="stat-icon purple"><i class="fas fa-cogs"></i></div><div class="stat-number" id="dashMachines">0</div><div class="stat-label">Machines</div><div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Operational</div></div></div>
-                <div class="col-xl-3 col-lg-6 col-md-6"><div class="stat-card"><div class="stat-icon orange"><i class="fas fa-tasks"></i></div><div class="stat-number" id="dashProjects">0</div><div class="stat-label">Projects</div><div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Active</div></div></div>
-                <div class="col-xl-3 col-lg-6 col-md-6"><div class="stat-card"><div class="stat-icon red"><i class="fas fa-clipboard-list"></i></div><div class="stat-number" id="dashRecords">0</div><div class="stat-label">Operator Records</div><div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> This week</div></div></div>
-                <div class="col-xl-3 col-lg-6 col-md-6"><div class="stat-card"><div class="stat-icon teal"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-number" id="dashIssues">0</div><div class="stat-label">Issues</div><div class="stat-change down"><i class="fas fa-arrow-down me-1"></i> Pending</div></div></div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-store"></i></div>
+                        <div class="stat-number" id="dashShops">0</div>
+                        <div class="stat-label">Shops</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Active</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-user"></i></div>
+                        <div class="stat-number" id="dashOperators">0</div>
+                        <div class="stat-label">Operators</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Active</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-cogs"></i></div>
+                        <div class="stat-number" id="dashMachines">0</div>
+                        <div class="stat-label">Machines</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Operational</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon orange"><i class="fas fa-tasks"></i></div>
+                        <div class="stat-number" id="dashProjects">0</div>
+                        <div class="stat-label">Projects</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> Active</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon red"><i class="fas fa-clipboard-list"></i></div>
+                        <div class="stat-number" id="dashRecords">0</div>
+                        <div class="stat-label">Operator Records</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up me-1"></i> This week</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon teal"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="stat-number" id="dashIssues">0</div>
+                        <div class="stat-label">Issues</div>
+                        <div class="stat-change down"><i class="fas fa-arrow-down me-1"></i> Pending</div>
+                    </div>
+                </div>
             </div>
             <div class="row g-4">
-                <div class="col-lg-8"><div class="chart-container"><h6 class="mb-3 fw-semibold"><i class="fas fa-chart-bar me-2"></i>Recent Performance (%)</h6><canvas id="performanceChart"></canvas></div></div>
-                <div class="col-lg-4"><div class="chart-container"><h6 class="mb-3 fw-semibold"><i class="fas fa-chart-pie me-2"></i>Machine Utilization</h6><canvas id="utilizationChart"></canvas></div></div>
+                <div class="col-lg-8">
+                    <div class="chart-container">
+                        <h6 class="mb-3 fw-semibold"><i class="fas fa-chart-bar me-2"></i>Recent Performance (%)</h6>
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="chart-container">
+                        <h6 class="mb-3 fw-semibold"><i class="fas fa-chart-pie me-2"></i>Machine Utilization</h6>
+                        <canvas id="utilizationChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -913,6 +1301,7 @@
                 opt.textContent = shop;
                 selectElement.appendChild(opt);
             });
+            // If the current value is in the list, reselect it
             if (current && EXCEL_SHOP_NAMES.includes(current)) {
                 selectElement.value = current;
             }
@@ -1020,16 +1409,15 @@
             });
         }
 
-        function filterProdOperators(shopId) {
+        function filterProdOperators(shopName) {
             const opSelect = document.getElementById('prod-operator-select');
             if (!opSelect) return;
             opSelect.innerHTML = '';
-            if (!shopId) {
+            if (!shopName) {
                 opSelect.innerHTML = '<option value="">Select a shop first…</option>';
                 return;
             }
-            // shopId is actually the shop name from the Excel dropdown
-            const operators = operatorData[shopId] || [];
+            const operators = operatorData[shopName] || [];
             if (operators.length === 0) {
                 opSelect.innerHTML = '<option value="">No operators found</option>';
                 return;
